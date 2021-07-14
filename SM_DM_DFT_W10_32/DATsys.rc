@@ -2802,7 +2802,7 @@ IDI_LEDOFF              ICON                    "res\\LedOff.ico"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2021,6,17,215
+ FILEVERSION 2021,7,14,217
  PRODUCTVERSION 0,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -2820,13 +2820,13 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "LG-PRI"
             VALUE "FileDescription", "DM_DFT Application Program"
-            VALUE "FileVersion", "V20210617"
+            VALUE "FileVersion", "V20210714"
             VALUE "InternalName", "DM_DFTsys"
             VALUE "LegalCopyright", "Copyright (C) 2021"
             VALUE "OriginalFilename", "DM_DFT.EXE"
             VALUE "ProductName", "DM DFT Application Program"
-            VALUE "ProductVersion", "V210617.215(WIN10 32)"
-            VALUE "SpecialBuild", "2021.06.17.215"
+            VALUE "ProductVersion", "V210714.217(WIN10 32)"
+            VALUE "SpecialBuild", "2021.07.14.217"
         END
     END
     BLOCK "VarFileInfo"

@@ -634,6 +634,13 @@ void CDATsysView::OnInitialUpdate()
 
 	CFormView::OnInitialUpdate();
 
+	//sTemp = "12456";
+	//CString sTemp1;
+	//if (sTemp.Compare(sTemp1) == 0) {
+	//	sTemp1 = "";
+	//}
+
+
 	GetParentFrame()->RecalcLayout();
 	ResizeParentToFit();
 	m_bSeq_Lock = 1;

@@ -2003,6 +2003,19 @@ double	_Version_Check()
 	int nData[3]   = {0,0,0};
 
 //MCS-DSP_VER, MTK-BE_VER
+	/*for (int i = 0; i < 15; i++)
+	{
+		if (CurrentSet->bVerChecked[nIndex - 1] == 1)
+			{
+				if (sVersion.GetLength)
+					return FALSE;
+			}
+		}
+		else
+		{
+			return FALSE;
+		}
+	}*/
 
 	if(CurrentSet->nChipType == CHIP_MCS)
 	{
@@ -2012,14 +2025,22 @@ double	_Version_Check()
 			if(CurrentSet->bRunAbort){return 0.0;}
 		}
 		_Wait(200);
-		if(CurrentSet->sBE_Version != "")
-		{ 
-			for(i = 0; i < 3; i++){
-				bResult2 = TVCommCtrl.Firmware_VersionCheck(BE_VER, CurrentSet->sBE_Version);
-				if(bResult2){break;}
-				if(CurrentSet->bRunAbort){return 0.0;}
+		if (CurrentSet->bVerChecked[BE_VER - 1] == 1)
+		{
+			if (CurrentSet->sBE_Version != "")
+			{
+				for (i = 0; i < 3; i++) {
+					bResult2 = TVCommCtrl.Firmware_VersionCheck(BE_VER, CurrentSet->sBE_Version);
+					if (bResult2) { break; }
+					if (CurrentSet->bRunAbort) { return 0.0; }
+				}
+				_Wait(200);
 			}
-			_Wait(200);
+			else
+			{
+				bResult2 = FALSE;
+				return 0.0;
+			}
 		}
 	}	
 	else{
@@ -2030,139 +2051,262 @@ double	_Version_Check()
 		}
 		_Wait(200);
 
-		if(CurrentSet->sDSP_Version != "")
-		{ 
-			for(i = 0; i < 3; i++){
-				bResult2 = TVCommCtrl.Firmware_VersionCheck(DSP_VER, CurrentSet->sDSP_Version);
-				if(bResult2){break;}
-				if(CurrentSet->bRunAbort){return 0.0;}
+		if (CurrentSet->bVerChecked[DSP_VER - 1] == 1)
+		{
+			if (CurrentSet->sDSP_Version != "")
+			{
+				for (i = 0; i < 3; i++) {
+					bResult2 = TVCommCtrl.Firmware_VersionCheck(DSP_VER, CurrentSet->sDSP_Version);
+					if (bResult2) { break; }
+					if (CurrentSet->bRunAbort) { return 0.0; }
+				}
+				_Wait(200);
 			}
-			_Wait(200);
+			else
+			{
+				bResult2 = FALSE;
+				return 0.0;
+			}
 		}
 	}	
 
-	if(CurrentSet->sFE_Version != "")
-	{ 
-		for(i = 0; i < 3; i++){
-			bResult3 = TVCommCtrl.Firmware_VersionCheck(FE_VER, CurrentSet->sFE_Version);
-			if(bResult3){break;}
-			if(CurrentSet->bRunAbort){return 0.0;}
+	if (CurrentSet->bVerChecked[FE_VER - 1] == 1)
+	{
+		if (CurrentSet->sFE_Version != "")
+		{
+			for (i = 0; i < 3; i++) {
+				bResult3 = TVCommCtrl.Firmware_VersionCheck(FE_VER, CurrentSet->sFE_Version);
+				if (bResult3) { break; }
+				if (CurrentSet->bRunAbort) { return 0.0; }
+			}
+			_Wait(200);
 		}
-		_Wait(200);
+		else
+		{
+			bResult3 = FALSE;
+			return 0.0;
+		}
 	}
 
-	if(CurrentSet->sMicom_Version != "")
-	{ 
-		for(i = 0; i < 3; i++){
-			bResult4 = TVCommCtrl.Firmware_VersionCheck(MICOM_VER, CurrentSet->sMicom_Version);
-			if(bResult4){break;}
-			if(CurrentSet->bRunAbort){return 0.0;}
+	if (CurrentSet->bVerChecked[MICOM_VER - 1] == 1)
+	{
+		if (CurrentSet->sMicom_Version != "")
+		{
+			for (i = 0; i < 3; i++) {
+				bResult4 = TVCommCtrl.Firmware_VersionCheck(MICOM_VER, CurrentSet->sMicom_Version);
+				if (bResult4) { break; }
+				if (CurrentSet->bRunAbort) { return 0.0; }
+			}
+			_Wait(200);
 		}
-		_Wait(200);
+		else
+		{
+			bResult4 = FALSE;
+			return 0.0;
+		}
 	}
 
-	if(CurrentSet->sSubDSP_Version != "")
-	{ 
-		for(i = 0; i < 3; i++){
-			bResult5 = TVCommCtrl.Firmware_VersionCheck(SUB_DSP_VER, CurrentSet->sSubDSP_Version);
-			if(bResult5){break;}
-			if(CurrentSet->bRunAbort){return 0.0;}
+	if (CurrentSet->bVerChecked[SUB_DSP_VER - 1] == 1)
+	{
+		if (CurrentSet->sSubDSP_Version != "")
+		{
+			for (i = 0; i < 3; i++) {
+				bResult5 = TVCommCtrl.Firmware_VersionCheck(SUB_DSP_VER, CurrentSet->sSubDSP_Version);
+				if (bResult5) { break; }
+				if (CurrentSet->bRunAbort) { return 0.0; }
+			}
+			_Wait(200);
 		}
-		_Wait(200);
+		else
+		{
+			bResult5 = FALSE;
+			return 0.0;
+		}
 	}
 	
-	if(CurrentSet->sEQ_Version != "")
-	{ 
-		for(i = 0; i < 3; i++){
-			bResult6 = TVCommCtrl.Firmware_VersionCheck(EQ_VER, CurrentSet->sEQ_Version);
-			if(bResult6){break;}
-			if(CurrentSet->bRunAbort){return 0.0;}
+	if (CurrentSet->bVerChecked[EQ_VER - 1] == 1)
+	{
+		if (CurrentSet->sEQ_Version != "")
+		{
+			for (i = 0; i < 3; i++) {
+				bResult6 = TVCommCtrl.Firmware_VersionCheck(EQ_VER, CurrentSet->sEQ_Version);
+				if (bResult6) { break; }
+				if (CurrentSet->bRunAbort) { return 0.0; }
+			}
+			_Wait(200);
 		}
-		_Wait(200);
-	}
-	if(CurrentSet->sMEQ_Version != "")
-	{ 
-		for(i = 0; i < 3; i++){
-			bResult7 = TVCommCtrl.Firmware_VersionCheck(MEQ_VER, CurrentSet->sMEQ_Version);
-			if(bResult7){break;}
-			if(CurrentSet->bRunAbort){return 0.0;}
+		else
+		{
+			bResult6 = FALSE;
+			return 0.0;
 		}
-		_Wait(200);
-	}
-	if(CurrentSet->sTouch_Version != "")
-	{ 
-		for(i = 0; i < 3; i++){
-			bResult8 = TVCommCtrl.Firmware_VersionCheck(TOUCH_VER, CurrentSet->sTouch_Version);
-			if(bResult8){break;}
-			if(CurrentSet->bRunAbort){return 0.0;}
-		}
-		_Wait(200);
 	}
 
-	if(CurrentSet->sDemo_Version != "")
-	{ 
-		for(i = 0; i < 3; i++){
-			bResult9 = TVCommCtrl.Firmware_VersionCheck(DEMO_VER, CurrentSet->sDemo_Version);
-			if(bResult9){break;}
-			if(CurrentSet->bRunAbort){return 0.0;}
+	if (CurrentSet->bVerChecked[MEQ_VER - 1] == 1)
+	{
+		if (CurrentSet->sMEQ_Version != "")
+		{
+			for (i = 0; i < 3; i++) {
+				bResult7 = TVCommCtrl.Firmware_VersionCheck(MEQ_VER, CurrentSet->sMEQ_Version);
+				if (bResult7) { break; }
+				if (CurrentSet->bRunAbort) { return 0.0; }
+			}
+			_Wait(200);
 		}
-		_Wait(200);
+		else
+		{
+			bResult7 = FALSE;
+			return 0.0;
+		}
 	}
 
-	if(CurrentSet->sDJSound_Version != "")
-	{ 
-		for(i = 0; i < 3; i++){
-			bResult10 = TVCommCtrl.Firmware_VersionCheck(DJ_SOUND_VER, CurrentSet->sDJSound_Version);
-			if(bResult10){break;}
-			if(CurrentSet->bRunAbort){return 0.0;}
+	if (CurrentSet->bVerChecked[TOUCH_VER - 1] == 1)
+	{
+		if (CurrentSet->sTouch_Version != "")
+		{
+			for (i = 0; i < 3; i++) {
+				bResult8 = TVCommCtrl.Firmware_VersionCheck(TOUCH_VER, CurrentSet->sTouch_Version);
+				if (bResult8) { break; }
+				if (CurrentSet->bRunAbort) { return 0.0; }
+			}
+			_Wait(200);
 		}
-		_Wait(200);
-	}
-	if(CurrentSet->sWirelessTx_Version != "")
-	{ 
-		for(i = 0; i < 3; i++){
-			bResult11 = TVCommCtrl.Firmware_VersionCheck(WIRELESS_TX_VER, CurrentSet->sWirelessTx_Version);
-			if(bResult11){break;}
-			if(CurrentSet->bRunAbort){return 0.0;}
+		else
+		{
+			bResult8 = FALSE;
+			return 0.0;
 		}
-		_Wait(200);
 	}
-	if(CurrentSet->sWirelessRx_Version != "")
-	{ 
-		for(i = 0; i < 3; i++){
-			bResult12 = TVCommCtrl.Firmware_VersionCheck(WIRELESS_RX_VER, CurrentSet->sWirelessRx_Version);
-			if(bResult12){break;}
-			if(CurrentSet->bRunAbort){return 0.0;}
+
+
+
+	if (CurrentSet->bVerChecked[DEMO_VER - 1] == 1)
+	{
+		if (CurrentSet->sDemo_Version != "")
+		{
+			for (i = 0; i < 3; i++) {
+				bResult9 = TVCommCtrl.Firmware_VersionCheck(DEMO_VER, CurrentSet->sDemo_Version);
+				if (bResult9) { break; }
+				if (CurrentSet->bRunAbort) { return 0.0; }
+			}
+			_Wait(200);
 		}
-		_Wait(200);
+		else
+		{
+			bResult9 = FALSE;
+			return 0.0;
+		}
 	}
+
+	if (CurrentSet->bVerChecked[DJ_SOUND_VER - 1] == 1)
+	{
+		if (CurrentSet->sDJSound_Version != "")
+		{
+			for (i = 0; i < 3; i++) {
+				bResult10 = TVCommCtrl.Firmware_VersionCheck(DJ_SOUND_VER, CurrentSet->sDJSound_Version);
+				if (bResult10) { break; }
+				if (CurrentSet->bRunAbort) { return 0.0; }
+			}
+			_Wait(200);
+		}
+		else
+		{
+			bResult10 = FALSE;
+			return 0.0;
+		}
+	}
+
+
+	if (CurrentSet->bVerChecked[WIRELESS_TX_VER - 1] == 1)
+	{
+		if (CurrentSet->sWirelessTx_Version != "")
+		{
+			for (i = 0; i < 3; i++) {
+				bResult11 = TVCommCtrl.Firmware_VersionCheck(WIRELESS_TX_VER, CurrentSet->sWirelessTx_Version);
+				if (bResult11) { break; }
+				if (CurrentSet->bRunAbort) { return 0.0; }
+			}
+			_Wait(200);
+		}
+		else
+		{
+			bResult11 = FALSE;
+			return 0.0;
+		}
+	}
+
+
+	if (CurrentSet->bVerChecked[WIRELESS_RX_VER - 1] == 1)
+	{
+		if (CurrentSet->sWirelessRx_Version != "")
+		{
+			for (i = 0; i < 3; i++) {
+				bResult12 = TVCommCtrl.Firmware_VersionCheck(WIRELESS_RX_VER, CurrentSet->sWirelessRx_Version);
+				if (bResult12) { break; }
+				if (CurrentSet->bRunAbort) { return 0.0; }
+			}
+			_Wait(200);
+		}
+		else
+		{
+			bResult12 = FALSE;
+			return 0.0;
+		}
+	}
+
 	///////////////////////////////////////////////////
-	if (CurrentSet->sBT_Version != "")
+	if (CurrentSet->bVerChecked[BT_VER - 1] == 1)
 	{
-		for (i = 0; i < 3; i++) {
-			bResult13 = TVCommCtrl.Firmware_VersionCheck(BT_VER, CurrentSet->sBT_Version);
-			if (bResult13) { break; }
-			if (CurrentSet->bRunAbort) { return 0.0; }
+		if (CurrentSet->sBT_Version != "")
+		{
+			for (i = 0; i < 3; i++) {
+				bResult13 = TVCommCtrl.Firmware_VersionCheck(BT_VER, CurrentSet->sBT_Version);
+				if (bResult13) { break; }
+				if (CurrentSet->bRunAbort) { return 0.0; }
+			}
+			_Wait(200);
 		}
-		_Wait(200);
+		else
+		{
+			bResult13 = FALSE;
+			return 0.0;
+		}
 	}
-	if (CurrentSet->sHDMI_Version != "")
+
+
+	if (CurrentSet->bVerChecked[HDMI_VER - 1] == 1)
 	{
-		for (i = 0; i < 3; i++) {
-			bResult14 = TVCommCtrl.Firmware_VersionCheck(HDMI_VER, CurrentSet->sHDMI_Version);
-			if (bResult14) { break; }
-			if (CurrentSet->bRunAbort) { return 0.0; }
+		if (CurrentSet->sHDMI_Version != "")
+		{
+			for (i = 0; i < 3; i++) {
+				bResult14 = TVCommCtrl.Firmware_VersionCheck(HDMI_VER, CurrentSet->sHDMI_Version);
+				if (bResult14) { break; }
+				if (CurrentSet->bRunAbort) { return 0.0; }
+			}
+			_Wait(200);
 		}
-		_Wait(200);
+		else
+		{
+			bResult14 = FALSE;
+			return 0.0;
+		}
 	}
 
 	//////////////////////////////////////////////////
-	if(CurrentSet->sChecksum != "")
-	{ 
-		for(i = 0; i < 3; i++){
-			bResult15 = TVCommCtrl.Firmware_VersionCheck(CHECKSUM_VER, CurrentSet->sChecksum);
-			if(bResult15){break;}
-			if(CurrentSet->bRunAbort){return 0.0;}
+	if (CurrentSet->bVerChecked[CHECKSUM_VER - 1] == 1)
+	{
+		if (CurrentSet->sChecksum != "")
+		{
+			for (i = 0; i < 3; i++) {
+				bResult15 = TVCommCtrl.Firmware_VersionCheck(CHECKSUM_VER, CurrentSet->sChecksum);
+				if (bResult15) { break; }
+				if (CurrentSet->bRunAbort) { return 0.0; }
+			}
+		}
+		else
+		{
+			bResult15 = FALSE;
+			return 0.0;
 		}
 	}
 

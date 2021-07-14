@@ -32,7 +32,7 @@ public:
 
 	CString m_szMsg1;
 	CString m_szMsg2;
-
+	int m_DelayTime;
 	//+add kwmoon 080508
 	BOOL	m_bYes;
 
@@ -40,6 +40,7 @@ public:
 	void ShowMessage1(CString szMsg);
 
 	void SetMessage(CString szMsg1, CString szMsg2);
+	void SetMessageTime(CString szMessage1, CString szMessage2, int lDely);
 	
 	//+ add 090902
 	BOOL		m_bActivate;
@@ -65,6 +66,8 @@ protected:
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 
 //{{AFX_INSERT_LOCATION}}

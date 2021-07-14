@@ -85,13 +85,17 @@ BOOL _UserMessage()
 	pos = pCurFunc->m_ArgumentList.GetHeadPosition();
 	if (pos!= NULL)
 	{
-		szMsg  = GetString();
+		
+		szUserMsg = GetString();
 		nDelay = GetInteger();
 
-		ShowSubStepMessage(szMsg, "User Message");
+		g_pView->m_UserMsgDlg.SetMessageTime(szUserMsg, "", nDelay);
+		g_pView->m_UserMsgDlg.DoModal();
+
+		//ShowSubStepMessage(szMsg, "User Message");
 	}
 
-	if(!_Wait(nDelay)) return FALSE;
+	//if(!_Wait(nDelay)) return FALSE;
 
 	return TRUE;
 }
@@ -165,6 +169,11 @@ BOOL Work_Normal()
 	 
 	DWORD dwAudioMeasureThreadResult = 0;
 	DWORD dwExitCode = 0;
+
+	if (pCurStep->m_nStepType == PROCESS_FUNCTION)
+	{
+		return TEST_PASS;
+	}
 
 	ShowSubStepMessage(sMsg, "Processing");
 	

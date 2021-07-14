@@ -28,6 +28,8 @@ CUserMsgDlg::CUserMsgDlg(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CUserMsgDlg)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
+	m_DelayTime = 50000;
+
 }
 
 
@@ -48,6 +50,7 @@ BEGIN_MESSAGE_MAP(CUserMsgDlg, CDialog)
 	ON_MESSAGE (WM_JOYSTICK_MSG, OnProcessMessage)
 	ON_WM_DESTROY()
 	//}}AFX_MSG_MAP
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -121,6 +124,7 @@ BOOL CUserMsgDlg::OnInitDialog()
 
 	ShowMessage1(m_szMsg1);
 	ShowMessage2(m_szMsg2);
+	SetTimer(1, m_DelayTime, NULL);
 	
 	//+add kwmoon 080508
 	m_bYes	= TRUE;
@@ -164,6 +168,17 @@ void CUserMsgDlg::SetMessage(CString szMessage1, CString szMessage2)
 {
 	m_szMsg1 = szMessage1;
 	m_szMsg2 = szMessage2;
+	m_DelayTime = 50000;
+	
+}
+
+void CUserMsgDlg::SetMessageTime(CString szMessage1, CString szMessage2, int lDely)
+{
+	m_szMsg1 = szMessage1;
+	m_szMsg2 = szMessage2;
+	m_DelayTime = lDely;
+	
+		
 }
 
 BEGIN_EVENTSINK_MAP(CUserMsgDlg, CDialog)
@@ -207,4 +222,14 @@ void CUserMsgDlg::OnDestroy()
 	
 	m_bActivate = FALSE;
 	
+}
+
+
+void CUserMsgDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	OnOK();
+
+	CDialog::OnTimer(nIDEvent);
 }

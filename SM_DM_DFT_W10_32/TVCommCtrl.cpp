@@ -545,6 +545,7 @@ BOOL CTVCommCtrl::Firmware_VersionCheck(int nIndex, CString sVersion)
 	int i;
 	BOOL bCheckSum_Check = TRUE;
 
+
 	m_bCheckReadVersion = 0;
 
 	switch(nIndex)
