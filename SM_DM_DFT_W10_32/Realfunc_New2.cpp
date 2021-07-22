@@ -81,6 +81,11 @@ BOOL _UserMessage()
 
 	CString szMsg = _T("");
 	CString szUserMsg = _T("");
+	CString sTEmp = "TEST";
+	if (sTEmp.Compare(szMsg) == 0)
+	{
+		sTEmp = "OK";
+	}
 
 	pos = pCurFunc->m_ArgumentList.GetHeadPosition();
 	if (pos!= NULL)
@@ -90,6 +95,7 @@ BOOL _UserMessage()
 		nDelay = GetInteger();
 
 		g_pView->m_UserMsgDlg.SetMessageTime(szUserMsg, "", nDelay);
+		g_pView->m_UserMsgDlg.m_bShowOkButton = 0;
 		g_pView->m_UserMsgDlg.DoModal();
 
 		//ShowSubStepMessage(szMsg, "User Message");

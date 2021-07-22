@@ -341,13 +341,53 @@ BOOL COptEtcPage::OnInitDialog()
 
 	m_bFixtureIdCheck = CurrentSet->bFixtureIdCheck;
 
+	int lSoundCardID = -1;
+
 	if (g_pView->m_sm_sound_ctrl.m_aStrSoundDevice.GetSize() > 0)
 	{
 		for (int i = 0; i < g_pView->m_sm_sound_ctrl.m_aStrSoundDevice.GetSize(); i++)
 		{
 			m_cComboSoundLeft.AddString(g_pView->m_sm_sound_ctrl.m_aStrSoundDevice.GetAt(i));
+			if (CurrentSet->sSoundInDeviceName == g_pView->m_sm_sound_ctrl.m_aStrSoundDevice.GetAt(i))
+			{
+				lSoundCardID = i;
+			}
 		}
 	}
+
+#if 1
+	CurrentSet->nSoundInDeviceID = lSoundCardID;
+	if ((g_pView->m_sm_sound_ctrl.m_aStrSoundDevice.GetSize() > CurrentSet->nSoundInDeviceID)
+		&& (0 <= CurrentSet->nSoundInDeviceID))
+	{
+		m_cComboSoundLeft.SetCurSel(CurrentSet->nSoundInDeviceID);
+
+		//g_pView->m_sm_sound_ctrl.StartCapture(this, CurrentSet->nSoundInDeviceID);
+	}
+	else
+	{
+		if (g_pView->m_sm_sound_ctrl.m_aStrSoundDevice.GetSize() >= 2)
+		{
+			if (g_nRunningProcessNo == 1)
+			{
+				CurrentSet->nSoundInDeviceID = 1;
+			}
+			else
+			{
+				CurrentSet->nSoundInDeviceID = 0;
+			}
+			m_cComboSoundLeft.SetCurSel(CurrentSet->nSoundInDeviceID);
+
+			//g_pView->m_sm_sound_ctrl.StartCapture(this, CurrentSet->nSoundInDeviceID);
+		}
+		else
+		{
+			m_cComboSoundLeft.SetCurSel(-1);
+			//	sTmp.Format(_T("Sound Card ID(%d) Select Error"), CurrentSet->nSoundInDeviceID);
+			MessageBox("Sound Card Select Error");
+		}
+	}
+#else
 	if ((g_pView->m_sm_sound_ctrl.m_aStrSoundDevice.GetSize() > CurrentSet->nSoundInDeviceID)
 		&& (0 <= CurrentSet->nSoundInDeviceID))
 	{
@@ -378,7 +418,7 @@ BOOL COptEtcPage::OnInitDialog()
 			MessageBox("Sound Card Select Error");
 		}
 	}
-
+#endif
 	UpdateData(FALSE);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -798,5 +838,6 @@ void COptEtcPage::OnCbnSelchangeComboSoundL()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	int nDeviceID = m_cComboSoundLeft.GetCurSel();
+	m_cComboSoundLeft.GetLBText(nDeviceID, CurrentSet->sSoundInDeviceName);
 	g_pView->SelchangeSoudDevice(nDeviceID);
 }

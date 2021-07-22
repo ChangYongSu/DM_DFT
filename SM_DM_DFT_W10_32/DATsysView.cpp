@@ -877,14 +877,23 @@ void CDATsysView::OnInitialUpdate()
 	m_Sound_Display_Enable = 1;
 	
 	m_sm_sound_ctrl.SelectDevice( 0);
+	int lSoundCardID = -1;
 	if (m_sm_sound_ctrl.m_aStrSoundDevice.GetSize() > 0)
 	{
 		//for (int i = 0; i < m_sm_sound_ctrl.m_aStrSoundDevice.GetSize(); i++)
 		//{
 		//	m_cComboSoundLeft.AddString(m_sm_sound_ctrl.m_aStrSoundDevice.GetAt(i));
 		//}
+		
+		for (int i = 0; i < g_pView->m_sm_sound_ctrl.m_aStrSoundDevice.GetSize(); i++)
+		{				
+			if (CurrentSet->sSoundInDeviceName == g_pView->m_sm_sound_ctrl.m_aStrSoundDevice.GetAt(i))
+			{
+				lSoundCardID = i;
+			}
+		}
 	}
-	if ((m_sm_sound_ctrl.m_aStrSoundDevice.GetSize() > CurrentSet->nSoundInDeviceID)
+	if ((lSoundCardID == CurrentSet->nSoundInDeviceID)
 		&&(0 <= CurrentSet->nSoundInDeviceID))
 	{
 //		m_cComboSoundLeft.SetCurSel(CurrentSet->nSoundInDeviceID);
@@ -904,8 +913,11 @@ void CDATsysView::OnInitialUpdate()
 				CurrentSet->nSoundInDeviceID = 0;
 			}
 	//		m_cComboSoundLeft.SetCurSel(CurrentSet->nSoundInDeviceID);
-
+			CurrentSet->sSoundInDeviceName = g_pView->m_sm_sound_ctrl.m_aStrSoundDevice.GetAt(CurrentSet->nSoundInDeviceID);
 			m_sm_sound_ctrl.StartCapture(this, CurrentSet->nSoundInDeviceID);
+			CWinApp* pApp = AfxGetApp();
+			pApp->WriteProfileInt(_T("Config"), _T("Sound Device ID"), CurrentSet->nSoundInDeviceID);
+			pApp->WriteProfileString(_T("Config"), _T("Sound Device Name"), CurrentSet->sSoundInDeviceName);
 		}
 		else
 		{	//		m_cComboSoundLeft.SetCurSel(-1);
@@ -2617,6 +2629,7 @@ void CDATsysView::LoadRegistrySetting(CEnvironmentData* pCurrentSet)
 	pCurrentSet->nJigUpType				= pApp->GetProfileInt(_T("Config"), _T("JigUpType"), 0); 
 
 	pCurrentSet->nSoundInDeviceID = pApp->GetProfileInt(_T("Config"), _T("Sound Device ID"), 0);
+	pCurrentSet->sSoundInDeviceName = pApp->GetProfileString(_T("Config"), _T("Sound Device Name"), "NC");
 
 	
 
@@ -3083,6 +3096,7 @@ void CDATsysView::SaveRegistrySetting()
 	pApp->WriteProfileInt(_T("Config"), _T("JigUpType"), CurrentSet->nJigUpType); 
 
 	pApp->WriteProfileInt(_T("Config"), _T("Sound Device ID"), CurrentSet->nSoundInDeviceID);
+	pApp->WriteProfileString(_T("Config"), _T("Sound Device Name"), CurrentSet->sSoundInDeviceName);
 
 }
 
@@ -5574,7 +5588,7 @@ void CDATsysView::OnOption()
 	if(AnalogControl.OnPciCardOpen()){
 		OnGrabStart();
 	}
-
+#if 0
 	if (CurrentSet->nSoundInDeviceID != lDeviceIDOld)
 	{
 		//CurrentSet->nSoundInDeviceID = lDeviceID;
@@ -5583,7 +5597,7 @@ void CDATsysView::OnOption()
 
 	//	pApp->WriteProfileInt(_T("Config"), _T("Sound Device ID"), CurrentSet->nSoundInDeviceID);
 	}
-
+#endif
 //	if(bFlag) SetTimer(2, 1000, NULL);
 
 }
@@ -11289,15 +11303,20 @@ BOOL CDATsysView::AudioMeasure()
 //}
 void CDATsysView::SelchangeSoudDevice(int lDeviceID)
 {
+	if (lDeviceID < 0)
+		return;
+
 	CWinApp* pApp = AfxGetApp();
 	//int lDeviceID = m_cComboSoundLeft.GetCurSel();
-	if (CurrentSet->nSoundInDeviceID != lDeviceID)
+	if (CurrentSet->sSoundInDeviceName == g_pView->m_sm_sound_ctrl.m_aStrSoundDevice.GetAt(lDeviceID))
 	{
+
 		CurrentSet->nSoundInDeviceID = lDeviceID;
 		m_sm_sound_ctrl.StopCapture();
 		m_sm_sound_ctrl.StartCapture(this, CurrentSet->nSoundInDeviceID);
 
 		pApp->WriteProfileInt(_T("Config"), _T("Sound Device ID"), CurrentSet->nSoundInDeviceID);
+		pApp->WriteProfileString(_T("Config"), _T("Sound Device Name"), CurrentSet->sSoundInDeviceName);
 	}
 
 }

@@ -29,6 +29,7 @@ CUserMsgDlg::CUserMsgDlg(CWnd* pParent /*=NULL*/)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
 	m_DelayTime = 50000;
+	m_bShowOkButton = 1;
 
 }
 
@@ -128,6 +129,8 @@ BOOL CUserMsgDlg::OnInitDialog()
 	
 	//+add kwmoon 080508
 	m_bYes	= TRUE;
+	
+	GetDlgItem(IDC_BTN_YES)->ShowWindow(m_bShowOkButton);
 
 //Mr In 210414	g_pView->PlayWavSound(IDR_WAVE_RETRY);
 
@@ -195,7 +198,7 @@ void CUserMsgDlg::OnBtnYes()
 	//+ add 090902
 	m_bActivate = FALSE;
 	//-
-
+	m_bShowOkButton = 1;
 	OnOK();
 	
 }
@@ -208,7 +211,7 @@ void CUserMsgDlg::OnBtnNo()
 	//+ add 090902
 	m_bActivate = FALSE;
 	//-
-
+	m_bShowOkButton = 1;
 	OnOK();
 	
 }
@@ -228,7 +231,7 @@ void CUserMsgDlg::OnDestroy()
 void CUserMsgDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-
+	m_bShowOkButton = 1;
 	OnOK();
 
 	CDialog::OnTimer(nIDEvent);

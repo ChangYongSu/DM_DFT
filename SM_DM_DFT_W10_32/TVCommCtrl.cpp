@@ -716,7 +716,8 @@ BOOL CTVCommCtrl::Firmware_VersionCheck(int nIndex, CString sVersion)
 	if(!bCheckSum_Check){return FALSE;}
 
 //	sVersion.MakeUpper(); 
-	if(sReadData.Compare(sVersion) == 0){
+	if ((sReadData.GetLength() > 0) && (sVersion.GetLength() > 0)&&(sReadData.Compare(sVersion) == 0)){
+		
 		return TRUE;
 	}
 	else{

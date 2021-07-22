@@ -470,6 +470,7 @@ public:
 	int		nRunStartType;						// 검사 시작 방법
 
 	int		nSoundInDeviceID;
+	CString		sSoundInDeviceName;
 };
 
 

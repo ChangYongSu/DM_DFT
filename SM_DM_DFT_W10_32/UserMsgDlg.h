@@ -35,6 +35,7 @@ public:
 	int m_DelayTime;
 	//+add kwmoon 080508
 	BOOL	m_bYes;
+	BOOL m_bShowOkButton;
 
 	void ShowMessage2(CString szMsg);
 	void ShowMessage1(CString szMsg);
