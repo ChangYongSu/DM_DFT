@@ -404,6 +404,73 @@ BOOL CreateModelIniFile(CString sModelIni)
 	//============
 	m_Ini.SetProfileInt(TV_CONTROL_S, "TV Control Type",CurrentSet->nTVControlType);
 */
+	
+	//int lar = strTemp.Replace(" ", "~");
+	// lar = strTemp.Replace("~", " ");
+	//sTemp = SpaceSet(CurrentSet->sBE_Version);
+#if 1
+	CString strTemp = "";
+
+	 strTemp = CurrentSet->sBE_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "BE Version", strTemp);
+
+	 strTemp = CurrentSet->sFE_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "FE Version", strTemp);
+
+	 strTemp = CurrentSet->sMicom_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "Micom Version", strTemp);
+
+	 strTemp = CurrentSet->sDSP_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "DSP Version", strTemp);
+
+	 strTemp = CurrentSet->sSubDSP_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "Sub DSP Version", strTemp);
+
+	 strTemp = CurrentSet->sEQ_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "EQ Version", strTemp);
+
+	 strTemp = CurrentSet->sMEQ_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "MEQ Version", strTemp);
+
+	 strTemp = CurrentSet->sTouch_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "Touch Version", strTemp);
+
+	 strTemp = CurrentSet->sDemo_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "Demo Version", strTemp);
+
+	 strTemp = CurrentSet->sDJSound_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "DJ Sound Version", strTemp);
+
+	 strTemp = CurrentSet->sWirelessTx_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "Wireless Tx Version", strTemp);
+
+	 strTemp = CurrentSet->sWirelessRx_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "Wireless Rx Version", strTemp);
+
+	 strTemp = CurrentSet->sBT_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "BT Version", strTemp);
+
+	 strTemp = CurrentSet->sHDMI_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "HDMI Version", strTemp);
+
+	 strTemp = CurrentSet->sChecksum;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "Checksum", strTemp);
+#else
 	m_Ini.SetProfileString(VERSION_CHECK_S, "BE Version",			CurrentSet->sBE_Version);
 	m_Ini.SetProfileString(VERSION_CHECK_S, "FE Version",			CurrentSet->sFE_Version);
 	m_Ini.SetProfileString(VERSION_CHECK_S, "Micom Version",		CurrentSet->sMicom_Version);
@@ -419,6 +486,7 @@ BOOL CreateModelIniFile(CString sModelIni)
 	m_Ini.SetProfileString(VERSION_CHECK_S, "BT Version",			CurrentSet->sBT_Version);
 	m_Ini.SetProfileString(VERSION_CHECK_S, "HDMI Version",			CurrentSet->sHDMI_Version);
 	m_Ini.SetProfileString(VERSION_CHECK_S, "Checksum", CurrentSet->sChecksum);
+#endif
 	CString sTemp;
 	sTemp = "";
 	for (int i = 0; i < 15; i++)
@@ -560,6 +628,69 @@ BOOL SaveModelIniFile(CString sIniPath)
 	//============
 	m_Ini.SetProfileInt(TV_CONTROL_S, "TV Control Type",CurrentSet->nTVControlType);
 */
+#if 1
+	CString strTemp = "";
+
+	strTemp = CurrentSet->sBE_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "BE Version", strTemp);
+
+	strTemp = CurrentSet->sFE_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "FE Version", strTemp);
+
+	strTemp = CurrentSet->sMicom_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "Micom Version", strTemp);
+
+	strTemp = CurrentSet->sDSP_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "DSP Version", strTemp);
+
+	strTemp = CurrentSet->sSubDSP_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "Sub DSP Version", strTemp);
+
+	strTemp = CurrentSet->sEQ_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "EQ Version", strTemp);
+
+	strTemp = CurrentSet->sMEQ_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "MEQ Version", strTemp);
+
+	strTemp = CurrentSet->sTouch_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "Touch Version", strTemp);
+
+	strTemp = CurrentSet->sDemo_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "Demo Version", strTemp);
+
+	strTemp = CurrentSet->sDJSound_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "DJ Sound Version", strTemp);
+
+	strTemp = CurrentSet->sWirelessTx_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "Wireless Tx Version", strTemp);
+
+	strTemp = CurrentSet->sWirelessRx_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "Wireless Rx Version", strTemp);
+
+	strTemp = CurrentSet->sBT_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "BT Version", strTemp);
+
+	strTemp = CurrentSet->sHDMI_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "HDMI Version", strTemp);
+
+	strTemp = CurrentSet->sChecksum;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "Checksum", strTemp);
+#else
 	m_Ini.SetProfileString(VERSION_CHECK_S, "BE Version",			CurrentSet->sBE_Version);
 	m_Ini.SetProfileString(VERSION_CHECK_S, "FE Version",			CurrentSet->sFE_Version);
 	m_Ini.SetProfileString(VERSION_CHECK_S, "Micom Version",		CurrentSet->sMicom_Version);
@@ -575,6 +706,7 @@ BOOL SaveModelIniFile(CString sIniPath)
 	m_Ini.SetProfileString(VERSION_CHECK_S, "BT Version", CurrentSet->sBT_Version);
 	m_Ini.SetProfileString(VERSION_CHECK_S, "HDMI Version", CurrentSet->sHDMI_Version);
 	m_Ini.SetProfileString(VERSION_CHECK_S, "Checksum",				CurrentSet->sChecksum);
+#endif
 	CString sTemp;
 	sTemp = "";
 	for (int i = 0; i < 15; i++)
@@ -771,21 +903,40 @@ BOOL OpenModelIniFile(CString sIniPath)
 	//============
 	CurrentSet->nTVControlType			= m_Ini.GetProfileInt(TV_CONTROL_S, "TV Control Type");
 */
+	//CString strTemp = "  TEST SPACE   ";
+	//int lar = strTemp.Replace(" ", "~");
+	//lar = strTemp.Replace("~", " ");
+
 	CurrentSet->sBE_Version			= m_Ini.GetProfileString(VERSION_CHECK_S, "BE Version");
+	CurrentSet->sBE_Version.Replace("~", " ");
 	CurrentSet->sFE_Version			= m_Ini.GetProfileString(VERSION_CHECK_S, "FE Version");
+	CurrentSet->sFE_Version.Replace("~", " ");
 	CurrentSet->sMicom_Version		= m_Ini.GetProfileString(VERSION_CHECK_S, "Micom Version");
+	CurrentSet->sMicom_Version.Replace("~", " ");
 	CurrentSet->sDSP_Version		= m_Ini.GetProfileString(VERSION_CHECK_S, "DSP Version");
+	CurrentSet->sDSP_Version.Replace("~", " ");
 	CurrentSet->sSubDSP_Version		= m_Ini.GetProfileString(VERSION_CHECK_S, "Sub DSP Version");
+	CurrentSet->sSubDSP_Version.Replace("~", " ");
 	CurrentSet->sEQ_Version			= m_Ini.GetProfileString(VERSION_CHECK_S, "EQ Version");
+	CurrentSet->sEQ_Version.Replace("~", " ");
 	CurrentSet->sMEQ_Version		= m_Ini.GetProfileString(VERSION_CHECK_S, "MEQ Version");
+	CurrentSet->sMEQ_Version.Replace("~", " ");
 	CurrentSet->sTouch_Version		= m_Ini.GetProfileString(VERSION_CHECK_S, "Touch Version");
+	CurrentSet->sTouch_Version.Replace("~", " ");
 	CurrentSet->sDemo_Version		= m_Ini.GetProfileString(VERSION_CHECK_S, "Demo Version");
+	CurrentSet->sDemo_Version.Replace("~", " ");
 	CurrentSet->sDJSound_Version	= m_Ini.GetProfileString(VERSION_CHECK_S, "DJ Sound Version");
+	CurrentSet->sDJSound_Version.Replace("~", " ");
 	CurrentSet->sWirelessTx_Version	= m_Ini.GetProfileString(VERSION_CHECK_S, "Wireless Tx Version");
+	CurrentSet->sWirelessTx_Version.Replace("~", " ");
 	CurrentSet->sWirelessRx_Version = m_Ini.GetProfileString(VERSION_CHECK_S, "Wireless Rx Version");
+	CurrentSet->sWirelessRx_Version.Replace("~", " ");
 	CurrentSet->sBT_Version = m_Ini.GetProfileString(VERSION_CHECK_S, "BT Version");
+	CurrentSet->sBT_Version.Replace("~", " ");
 	CurrentSet->sHDMI_Version = m_Ini.GetProfileString(VERSION_CHECK_S, "HDMI Version");
+	CurrentSet->sHDMI_Version.Replace("~", " ");
 	CurrentSet->sChecksum			= m_Ini.GetProfileString(VERSION_CHECK_S, "Checksum");
+	CurrentSet->sChecksum.Replace("~", " ");
 
 	//CString sTemp;
 	//sTemp = m_Ini.GetProfileString(VERSION_CHECK_S, "Checked Display");	
@@ -5941,3 +6092,27 @@ BOOL Send_ResultMpKey( BOOL bResult)
 
 	return bRev;
 }
+
+//
+//CString SpaceSet(CString sVersion)
+//{
+//	
+//	CString sNewVersion = _T("");
+//	sNewVersion = sVersion;
+//	int nReplce = sNewVersion.Replace(" ", "~");
+//
+//
+//	return sNewVersion;
+//}
+//
+//
+//CString SpaceGet(CString sVersion)
+//{
+//
+//	CString sNewVersion = _T("");
+//	sNewVersion = sVersion;
+//	int nReplce = sNewVersion.Replace("~", " ");
+//
+//
+//	return sNewVersion;
+//}
