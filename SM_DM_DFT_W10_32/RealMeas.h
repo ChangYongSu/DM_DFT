@@ -15,6 +15,7 @@
 
 BOOL _UserMessage();
 BOOL _NotifyMessage();
+BOOL _Boot_Check();
 BOOL _Delay();
 BOOL _Work();
 BOOL _Wait(int nMillisecond);
@@ -44,6 +45,7 @@ BOOL _Remocon_Out();
 
 BOOL _SetRemoconOutRetry();
 BOOL _SetRelay_OnOff();
+BOOL _Freq_Set();
 
 //-
 

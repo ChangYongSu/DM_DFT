@@ -682,6 +682,7 @@ enum RectIndex
 #define SET_CUSTOM_CODE			0x0b
 #define SEND_REMOTE_CODE		0x0c
 #define SET_REMOTE_REPEAT_NO	0x0d
+#define SET_AUDIO_FRQ			0x0e
 
 //+add kwmoon 080929
 #define SET_RGB_SOUND			0x0e

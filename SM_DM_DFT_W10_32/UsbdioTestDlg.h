@@ -24,6 +24,10 @@ public:
 	BOOL	m_bRelay2;
 	BOOL	m_bRelay3;
 	BOOL	m_bRelay4;
+	BOOL	m_bRelay5;
+	BOOL	m_bRelay6;
+	BOOL	m_bRelay7;
+	BOOL	m_bRelay8;
 	//}}AFX_DATA
 
 

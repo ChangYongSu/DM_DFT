@@ -50,7 +50,8 @@ int aAvSwitchBoxCtrlItemNo[] =
 int aUsbDioItemNo[] =
 {
 	IDC_STATIC_RELAY, IDC_CHECK_RELAY1, IDC_CHECK_RELAY2,
-	IDC_CHECK_RELAY3, IDC_CHECK_RELAY4, IDC_CHECK_SELECT_ALL,
+	IDC_CHECK_RELAY3, IDC_CHECK_RELAY4, IDC_CHECK_RELAY5, 
+	IDC_CHECK_RELAY6, IDC_CHECK_RELAY7, IDC_CHECK_RELAY8, IDC_CHECK_SELECT_ALL,
 	IDC_BUTTON_SET2
 };
 
@@ -75,6 +76,10 @@ CGrabPage::CGrabPage(CWnd* pParent /*=NULL*/)
 	m_bRelay2 = FALSE;
 	m_bRelay3 = FALSE;
 	m_bRelay4 = FALSE;
+	m_bRelay5 = FALSE;
+	m_bRelay6 = FALSE;
+	m_bRelay7 = FALSE;
+	m_bRelay8 = FALSE;
 	//}}AFX_DATA_INIT
 
 	m_hPageGrabThreadKillEvent = NULL;
@@ -144,6 +149,10 @@ void CGrabPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_RELAY2, m_bRelay2);
 	DDX_Check(pDX, IDC_CHECK_RELAY3, m_bRelay3);
 	DDX_Check(pDX, IDC_CHECK_RELAY4, m_bRelay4);
+	DDX_Check(pDX, IDC_CHECK_RELAY5, m_bRelay5);
+	DDX_Check(pDX, IDC_CHECK_RELAY6, m_bRelay6);
+	DDX_Check(pDX, IDC_CHECK_RELAY7, m_bRelay7);
+	DDX_Check(pDX, IDC_CHECK_RELAY8, m_bRelay8);
 	DDX_Control(pDX, IDC_EDIT_AVC_OUT, m_ctrlIrDataOut);
 	//}}AFX_DATA_MAP
 }
@@ -322,30 +331,49 @@ BOOL CGrabPage::OnInitDialog()
 			}
 		}
 	}
-	else{
+	else {
 		GetDlgItem(IDC_CHECK_RELAY4)->EnableWindow(TRUE);
 
-		nBuf =  gUsbDioCtrl.nDIO_Out & 0x01;
-		if(nBuf == 0x01){
+		nBuf = gUsbDioCtrl.nDIO_Out & 0x01;
+		if (nBuf == 0x01) {
 			m_bRelay1 = TRUE;
 		}
-		
-		nBuf =  gUsbDioCtrl.nDIO_Out & 0x02;
-		if(nBuf == 0x02){
+
+		nBuf = gUsbDioCtrl.nDIO_Out & 0x02;
+		if (nBuf == 0x02) {
 			m_bRelay2 = TRUE;
 		}
-		
-		nBuf =  gUsbDioCtrl.nDIO_Out & 0x04;
-		if(nBuf == 0x04){
+
+		nBuf = gUsbDioCtrl.nDIO_Out & 0x04;
+		if (nBuf == 0x04) {
 			m_bRelay3 = TRUE;
 		}
-		
-		nBuf =  gUsbDioCtrl.nDIO_Out & 0x08;
-		if(nBuf == 0x08){
-			m_bRelay1 = TRUE;
+
+		nBuf = gUsbDioCtrl.nDIO_Out & 0x08;
+		if (nBuf == 0x08) {
+			m_bRelay4 = TRUE;
+		}
+
+		nBuf = gUsbDioCtrl.nDIO_Out & 0x08;
+		if (nBuf == 0x10) {
+			m_bRelay5 = TRUE;
+		}
+
+		nBuf = gUsbDioCtrl.nDIO_Out & 0x08;
+		if (nBuf == 0x20) {
+			m_bRelay6 = TRUE;
+		}
+
+		nBuf = gUsbDioCtrl.nDIO_Out & 0x08;
+		if (nBuf == 0x40) {
+			m_bRelay7 = TRUE;
+		}
+
+		nBuf = gUsbDioCtrl.nDIO_Out & 0x08;
+		if (nBuf == 0x80) {
+			m_bRelay8 = TRUE;
 		}
 	}
-
 	UpdateData(FALSE);
 
 	CRect rect;
@@ -2535,12 +2563,20 @@ void CGrabPage::OnCheckSelectAll()
 		m_bRelay2 = TRUE;
 		m_bRelay3 = TRUE;
 		m_bRelay4 = TRUE;
+		m_bRelay5 = TRUE;
+		m_bRelay6 = TRUE;
+		m_bRelay7 = TRUE;
+		m_bRelay8 = TRUE;
 	}
 	else{
 		m_bRelay1 = FALSE;
 		m_bRelay2 = FALSE;
 		m_bRelay3 = FALSE;
 		m_bRelay4 = FALSE;
+		m_bRelay5 = FALSE;
+		m_bRelay6 = FALSE;
+		m_bRelay7 = FALSE;
+		m_bRelay8 = FALSE;
 	}
 
 	UpdateData(FALSE);
@@ -2564,6 +2600,10 @@ void CGrabPage::OnButtonSet2()
 		if(m_bRelay2) nBuf = nBuf + 0x02;
 		if(m_bRelay3) nBuf = nBuf + 0x04;
 		if(m_bRelay4) nBuf = nBuf + 0x08;
+		if (m_bRelay5) nBuf = nBuf + 0x10;
+		if (m_bRelay6) nBuf = nBuf + 0x20;
+		if (m_bRelay7) nBuf = nBuf + 0x40;
+		if (m_bRelay8) nBuf = nBuf + 0x80;
 		
 		gUsbDioCtrl.WriteByte(nBuf);
 	}

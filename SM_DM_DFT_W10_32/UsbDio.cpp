@@ -199,44 +199,60 @@ BOOL CUsbDio::Set_Relay(int nNo, BOOL bOnOff)
 {
 	BYTE nValue;
 	BOOL bRet;
-
-	if(!m_bUsbDio) return FALSE;
-	
-	if(nNo == 1){
-		if(bOnOff){
-			nValue = nDIO_Out | 0x01;
-		}
-		else{
-			nValue = nDIO_Out & 0xfe;
-		}
+	int lShift = 0;
+	if ((nNo > 0) && (nNo <= 8))
+	{
+		lShift = nNo - 1;
 	}
-	else if(nNo == 2){
-		if(bOnOff){
-			nValue = nDIO_Out | 0x02;
-		}
-		else{
-			nValue = nDIO_Out & 0xfd;
-		}
-	}
-	else if(nNo == 3){
-		if(bOnOff){
-			nValue = nDIO_Out | 0x04;
-		}
-		else{
-			nValue = nDIO_Out & 0xfb;
-		}
-	}
-	else if(nNo == 4){
-		if(bOnOff){
-			nValue = nDIO_Out | 0x08;
-		}
-		else{
-			nValue = nDIO_Out & 0xf7;
-		}
-	}
-	else{
+	else
+	{
 		return FALSE;
 	}
+
+	if(!m_bUsbDio) return FALSE;
+	if (bOnOff) {
+		nValue = nDIO_Out | (0x01<< lShift);
+	}
+	else{
+		nValue = nDIO_Out & ~(0x01 << lShift);
+	}
+
+	
+	//if(nNo == 1){
+	//	if(bOnOff){
+	//		nValue = nDIO_Out | 0x01;
+	//	}
+	//	else{
+	//		nValue = nDIO_Out & 0xfe;
+	//	}
+	//}
+	//else if(nNo == 2){
+	//	if(bOnOff){
+	//		nValue = nDIO_Out | 0x02;
+	//	}
+	//	else{
+	//		nValue = nDIO_Out & 0xfd;
+	//	}
+	//}
+	//else if(nNo == 3){
+	//	if(bOnOff){
+	//		nValue = nDIO_Out | 0x04;
+	//	}
+	//	else{
+	//		nValue = nDIO_Out & 0xfb;
+	//	}
+	//}
+	//else if(nNo == 4){
+	//	if(bOnOff){
+	//		nValue = nDIO_Out | 0x08;
+	//	}
+	//	else{
+	//		nValue = nDIO_Out & 0xf7;
+	//	}
+	//}
+	//else{
+	//	return FALSE;
+	//}
 
 	bRet = WriteByte(nValue);
 

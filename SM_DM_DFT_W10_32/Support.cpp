@@ -4271,39 +4271,25 @@ BOOL OpenModelListFile(CString sModelListPath,int& nNoModel,CStringArray &Divisi
 //	if(g_LogFileOpen) g_LogFile.WriteString(szLog);
 
 	for (int i = 2; i <= nNoModel; i++)
-	{
-		CModelData* pModel = new CModelData;
-
-		// Read row
+	{	
+		
 		tempSS.ReadRow(Rows, i);
 
-		pModel->m_szDivision          = Rows.GetAt(0);
-		pModel->m_szChassisName		  = Rows.GetAt(1);
-		pModel->m_szModelName		  = Rows.GetAt(2);
-		pModel->m_szSeqFilePath		  = Rows.GetAt(3);
-		pModel->m_szModelInfoFilePath = Rows.GetAt(4);
-		pModel->m_szRefImgFolder	  = Rows.GetAt(5);
-		
-		CurrentSet->ModelList.AddTail(pModel);
-		
+		if (Rows.GetAt(0).GetLength() > 2)
+		{
+			// Read row
+			CModelData* pModel = new CModelData;
 
-		//int lFlag = 0;
-		//for (int id = 0; id < Divisions.GetCount(); id++)
-		//{
-		//	if (Divisions.GetAt(id).Compare(pModel->m_szDivision) == 0)
-		//	{
-		//		lFlag = 1;
-		//		break;
+			pModel->m_szDivision = Rows.GetAt(0);
+			pModel->m_szChassisName = Rows.GetAt(1);
+			pModel->m_szModelName = Rows.GetAt(2);
+			pModel->m_szSeqFilePath = Rows.GetAt(3);
+			pModel->m_szModelInfoFilePath = Rows.GetAt(4);
+			pModel->m_szRefImgFolder = Rows.GetAt(5);
 
-		//	}
+			CurrentSet->ModelList.AddTail(pModel);
 
-		//}
-
-
-		//if (lFlag == 0)
-		//{
-		//	Divisions.Add(pModel->m_szDivision);
-		//}
+		}
 
 	}
 	tempSS.GetDivisions(Divisions);

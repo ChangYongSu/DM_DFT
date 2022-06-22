@@ -28,7 +28,7 @@
 // #define NO_GRAB_OPTION_TAB_ITEM 21
 //+change psh 091214
 //#define NO_GRAB_OPTION_TAB_ITEM 23
-#define NO_USB_DIO_TAB_ITEM 7
+#define NO_USB_DIO_TAB_ITEM 11//7
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -84,6 +84,10 @@ public:
 	BOOL	m_bRelay2;
 	BOOL	m_bRelay3;
 	BOOL	m_bRelay4;
+	BOOL	m_bRelay5;
+	BOOL	m_bRelay6;
+	BOOL	m_bRelay7;
+	BOOL	m_bRelay8;
 	CEdit	m_ctrlIrDataOut;
 	//}}AFX_DATA
 

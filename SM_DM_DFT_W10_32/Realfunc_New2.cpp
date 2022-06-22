@@ -125,12 +125,56 @@ BOOL _NotifyMessage()
 		bRetrun = g_pView->m_UserMsgDlg.m_bYes;
 	
 	}
-
+	
 	if(!bRetrun) CurrentSet->bRunAbort = TRUE;
 //090408
 //	return bRetrun;
 	return TRUE;
 }
+
+
+BOOL _Boot_Check()
+{
+
+	BOOL    bRetrun = TRUE;
+	UINT nDelay = 0;
+
+	pos = pCurFunc->m_ArgumentList.GetHeadPosition();
+	if (pos != NULL)
+	{
+		nDelay = GetInteger();
+	}		
+	int nResult = TVCommCtrl.Boot_Check(nDelay);	
+	if (nResult != TEST_PASS)
+	{
+		return FALSE;
+	}
+	return TRUE;
+}
+
+//BOOL CTVCommCtrl::Boot_Check(int nWait)
+//pos = pCurFunc->m_ArgumentList.GetHeadPosition();
+	
+//if (pos != NULL)
+//{
+//	sCmd1 = GetString();
+//
+//	nWaitLimit = GetInteger();
+//}
+//else
+//{
+//	return FALSE;
+//}
+//
+//
+//int nResult = TVCommCtrl.IfTest((BYTE)hexCstr2decNum(sCmd1), nWaitLimit, FALSE);
+//
+//if (nResult != TEST_PASS)
+//{
+//	return FALSE;
+//}
+//
+//return TRUE;
 
 BOOL _Delay()
 {
@@ -146,6 +190,8 @@ BOOL _Delay()
 	if(!_Wait(nDelay)) return FALSE;
 	return TRUE;
 }
+
+
 
 BOOL _Work()
 {
@@ -1249,6 +1295,7 @@ BOOL _Wait(int nMillisecond)
 
 	return TRUE;
 }
+
 
 /////////////////////////////////////////////////////////////////////////////
 //AvSwitch Cmd Version 1
@@ -4520,7 +4567,7 @@ BOOL _SetRelay_OnOff()
 		return FALSE;
 	}
 	if(gPciDioCtrl.m_bPCIDIO){
-		if((nRelayNo < 1) || (nRelayNo > 3)){
+		if ((nRelayNo < 1) || (nRelayNo > 3)) {
 			return FALSE;
 		}
 		if(nFlag == 0){
@@ -4531,7 +4578,7 @@ BOOL _SetRelay_OnOff()
 		}
 	}
 	else{
-		if((nRelayNo < 1) || (nRelayNo > 4)){
+		if((nRelayNo < 1) || (nRelayNo > 8)){
 			return FALSE;
 		}
 		if(nFlag == 0){
@@ -4542,6 +4589,43 @@ BOOL _SetRelay_OnOff()
 		}
 	}
 
+	return bRet;
+}
+
+BOOL _Freq_Set()
+{
+	int nPortNo;
+	int nLeftFreq;
+	int nRightFreq;
+	BOOL bRet = TRUE;
+
+	pos = pCurFunc->m_ArgumentList.GetHeadPosition();
+	
+	if (pos!= NULL)
+	{
+		
+		nPortNo= GetInteger();;
+		nLeftFreq = GetInteger();;
+		nRightFreq = GetInteger();;
+	}
+	else 
+	{
+		return FALSE;
+	}
+	if ((nPortNo >= 1) && (nPortNo < 8)
+		&&(nLeftFreq >= 20) && (nLeftFreq <= 10000)
+		&&(nRightFreq >= 20) && (nRightFreq <= 10000))
+	{
+		if (!AvSwitchBoxCtrl.SetFreqCmd(MAX_AVSWITCH_WAIT_DELAY, nPortNo, nLeftFreq, nRightFreq))
+		{
+			return FALSE;
+		}
+	}
+	else
+	{
+		return FALSE;
+	}
+	
 	return bRet;
 }
 

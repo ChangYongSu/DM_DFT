@@ -657,7 +657,8 @@ BOOL CSelectGenerateModel::ModelListOpen()
 	{
 		// Read row
 		SS.ReadRow(Rows, i);
-
+int nRows = SS.GetTotalRows();
+CString lTemp = Rows.GetAt(0);
 		if (Rows.GetAt(0).GetLength() > 2)
 		{
 			CModelData* pModel = new CModelData;
@@ -673,9 +674,9 @@ BOOL CSelectGenerateModel::ModelListOpen()
 		}
 		else
 		{
+//			SS.DeleteRow(Rows);//	SS.DeleteRow(Rows);
 			continue;
-		}
-
+		}		
 	}
 
 #else

@@ -1300,6 +1300,7 @@
 #define IDC_CHK_REMOTE_TYPE2            1263
 #define IDC_EDIT_ALLOWED_ERROR_PIXELS_5 1263
 #define IDC_CHK_USE_HDMIGEN             1263
+#define IDC_CHECK_RELAY5                1263
 #define IDC_BTN_REMOTE_0                1264
 #define IDC_LABEL8                      1264
 #define IDC_CHECK7                      1264
@@ -1308,12 +1309,14 @@
 #define IDC_CHK_SAVE_REVIEW_DATA        1264
 #define IDC_CHK_USE_DMM                 1264
 #define IDC_CHK_USE_TH                  1264
+#define IDC_CHECK_RELAY6                1264
 #define IDC_BTN_REMOTE_1                1265
 #define IDC_LABEL9                      1265
 #define IDC_CHECK8                      1265
 #define IDC_CHK_SOURCE_RGB              1265
 #define IDC_CHK_USE_2IN1_AVSWITCHBOX    1265
 #define IDC_CHK_SAVE_DETAIL_RESULT_DATA 1265
+#define IDC_CHECK_RELAY7                1265
 #define IDC_BTN_REMOTE_2                1266
 #define IDC_LABEL10                     1266
 #define IDC_CHECK9                      1266
@@ -1321,6 +1324,7 @@
 #define IDC_CHK_USE_SCANNER             1266
 #define IDC_EDIT_FREQ_MARGIN            1266
 #define IDC_EDIT_NO_TESTED_BOARD        1266
+#define IDC_CHECK_RELAY8                1266
 #define IDC_BTN_REMOTE_3                1267
 #define IDC_LABEL11                     1267
 #define IDC_SPIN_MODEL_NUM              1267
@@ -2443,7 +2447,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        358
+#define _APS_NEXT_RESOURCE_VALUE        359
 #define _APS_NEXT_COMMAND_VALUE         32896
 #define _APS_NEXT_CONTROL_VALUE         1651
 #define _APS_NEXT_SYMED_VALUE           101

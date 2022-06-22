@@ -26,6 +26,10 @@ CUsbdioTestDlg::CUsbdioTestDlg(CWnd* pParent /*=NULL*/)
 	m_bRelay2 = FALSE;
 	m_bRelay3 = FALSE;
 	m_bRelay4 = FALSE;
+	m_bRelay5 = FALSE;
+	m_bRelay6 = FALSE;
+	m_bRelay7 = FALSE;
+	m_bRelay8 = FALSE;
 	//}}AFX_DATA_INIT
 }
 
@@ -49,6 +53,10 @@ void CUsbdioTestDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_RELAY2, m_bRelay2);
 	DDX_Check(pDX, IDC_CHECK_RELAY3, m_bRelay3);
 	DDX_Check(pDX, IDC_CHECK_RELAY4, m_bRelay4);
+	DDX_Check(pDX, IDC_CHECK_RELAY5, m_bRelay5);
+	DDX_Check(pDX, IDC_CHECK_RELAY6, m_bRelay6);
+	DDX_Check(pDX, IDC_CHECK_RELAY7, m_bRelay7);
+	DDX_Check(pDX, IDC_CHECK_RELAY8, m_bRelay8);
 	//}}AFX_DATA_MAP
 }
 
@@ -90,12 +98,20 @@ void CUsbdioTestDlg::OnCheckSelectAll()
 		m_bRelay2 = TRUE;
 		m_bRelay3 = TRUE;
 		m_bRelay4 = TRUE;
+		m_bRelay5 = TRUE;
+		m_bRelay6 = TRUE;
+		m_bRelay7 = TRUE;
+		m_bRelay8 = TRUE;
 	}
 	else{
 		m_bRelay1 = FALSE;
 		m_bRelay2 = FALSE;
 		m_bRelay3 = FALSE;
 		m_bRelay4 = FALSE;
+		m_bRelay5 = FALSE;
+		m_bRelay6 = FALSE;
+		m_bRelay7 = FALSE;
+		m_bRelay8 = FALSE;
 	}
 
 	UpdateData(FALSE);
@@ -144,6 +160,10 @@ void CUsbdioTestDlg::OnButtonSet()
 	if(m_bRelay2) nBuf = nBuf + 0x02;
 	if(m_bRelay3) nBuf = nBuf + 0x04;
 	if(m_bRelay4) nBuf = nBuf + 0x08;
+	if (m_bRelay5) nBuf = nBuf + 0x10;
+	if (m_bRelay6) nBuf = nBuf + 0x20;
+	if (m_bRelay7) nBuf = nBuf + 0x40;
+	if (m_bRelay8) nBuf = nBuf + 0x80;
 
 	gUsbDioCtrl.WriteByte(nBuf);
 }

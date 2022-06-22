@@ -1051,6 +1051,34 @@ BOOL CTVCommCtrl::PortClear()
 
 	return TRUE;
 }
+//TVCommCtrl.m_nReceiveData[TVCommCtrl.m_nReceiveLength
+BOOL CTVCommCtrl::Boot_Check(int nWait)
+{
+	CString sIndex;
+	CString sReadData;
+	CString sTemp;
+	CString szMsg1 = _T("");
+	CString szPrevMsg = _T("");
+
+	
+	if(!ReceiveCommString( nWait))
+	{
+		return FALSE;
+	}
+
+	//[BB] [04] [02] [F7] [01] [XX]
+
+	if( (m_nRevData[0] == 0xBB) && (m_nRevData[3] == 0xF7) && (m_nRevData[4] == 0x01))
+	{ 
+		return TRUE;
+	}
+	else{
+		return FALSE;
+	}
+
+	return TRUE;
+
+}
 
 //+add 090415
 BOOL CTVCommCtrl::Set_Mic_OnOff(BOOL bFlag, int nWait)

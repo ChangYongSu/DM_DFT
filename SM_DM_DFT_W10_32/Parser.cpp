@@ -193,6 +193,11 @@ _InternalFunction Predefined[] =
 	{ _T("Delay"), _T("")},
 	{NORMAL_EDIT_TYPE, NULL_TYPE},
 
+	_T("boot_check"), _Boot_Check,
+	{LP, INTEGER, RP, TNULL},
+	{ _T("Delay"), _T("")},
+	{NORMAL_EDIT_TYPE, NULL_TYPE},
+
 	_T("work"), _Work,
 	{LP, RP, TNULL},
 	{_T("")},
@@ -487,6 +492,11 @@ _InternalFunction Predefined[] =
 	{LP, STRING, RP, TNULL},
 	{_T("")},
 	{NORMAL_EDIT_TYPE,NULL_TYPE},
+
+	_T("set_freq"), _Freq_Set,
+	{ LP, INTEGER, COMMA, INTEGER, COMMA, INTEGER, RP, TNULL },
+	{ _T("Audio Sel"), _T("Freq Left"), _T("Freq Right"), _T("") },
+	{ NORMAL_EDIT_TYPE, NORMAL_EDIT_TYPE, NORMAL_EDIT_TYPE, NULL_TYPE },
 
     NULL, NULL, { TNULL }
 };                      

@@ -217,6 +217,7 @@ public :
 	BOOL Send_ResultKey( BOOL bResult) ;
 
 	BOOL Check_MicDiffLevel();
+	BOOL CTVCommCtrl::Boot_Check(int nWait);
 
 private:
 

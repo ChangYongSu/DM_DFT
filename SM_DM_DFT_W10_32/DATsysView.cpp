@@ -1735,6 +1735,30 @@ void CDATsysView::OnModelOpen()
 
 LRESULT  CDATsysView::OnChangeModelOpen(WPARAM wParam, LPARAM lParam)
 {
+
+	CString lFindName;
+	lFindName = CurrentSet->sModelSuffixName;
+	CString str;
+	//CString lFindName;
+	CString lFoundedName;
+	lFindName = CurrentSet->sModelSuffixName;
+	//lFindName.Replace(".", "_");
+	str = "Check S/N is";
+	str += lFindName;
+	str += " MODEL. \r\n \r\n";
+	str += "  Do You Change MODEL ?";
+
+	//	if(IDOK == MessageWindow(str))
+	if (IDYES == MessageBox(str, "New Model Detected", MB_YESNO))
+	{
+		if (0 == ChangeModelCheckOpen(lFindName))
+		{
+			MessageBox( "New Model Not Found!!");
+		}
+	}
+	return 0;
+	////////////////////////////////////////////////////////////////
+#if 0
 	CWinApp* pApp = AfxGetApp();
 
 	int		nNoModel = 0;
@@ -1757,9 +1781,10 @@ LRESULT  CDATsysView::OnChangeModelOpen(WPARAM wParam, LPARAM lParam)
 	StopGrabThread();
 
 	Sleep(100);
-
+	//BP250 - N.DJPNLLM
 	CString str;
 	CString lFindName;
+	CString lFoundedName;
 	lFindName = CurrentSet->sModelSuffixName;
 	//lFindName.Replace(".", "_");
 	str = "Check S/N is";
@@ -1767,7 +1792,7 @@ LRESULT  CDATsysView::OnChangeModelOpen(WPARAM wParam, LPARAM lParam)
 	str += " MODEL. \r\n \r\n";
 	str += "  Do You Change MODEL ?";
 
-//	if(IDOK == MessageWindow(str))
+	//	if(IDOK == MessageWindow(str))
 	if (IDYES == MessageBox(str, "New Model Detected", MB_YESNO))
 	{
 
@@ -1783,7 +1808,9 @@ LRESULT  CDATsysView::OnChangeModelOpen(WPARAM wParam, LPARAM lParam)
 				if (pModelData->m_szModelName.Find(lFindName) >= 0)
 				{
 					//lFindName = pModelData->m_szModelName;
+					lFoundedName = pModelData->m_szModelName;
 					bFindFlag = 1;
+					break;
 				}
 			}
 		}
@@ -1792,18 +1819,18 @@ LRESULT  CDATsysView::OnChangeModelOpen(WPARAM wParam, LPARAM lParam)
 	{
 		return 0;
 	}
-	
+
 	//CurrentSet->sModelSuffixName;
-	if(bFindFlag == 1)
+	if (bFindFlag == 1)
 	{
 		//+move kwmoon 080818
 		CurrentSet->sSeqPath = CurrentSet->sServerFolder + pModelData->m_szSeqFilePath;
 		CurrentSet->sModelIni = CurrentSet->sModelInfoFolder + pModelData->m_szModelInfoFilePath;
 		CurrentSet->sModelFolder
-			= CurrentSet->sServerFolder 
+			= CurrentSet->sServerFolder
 			+ pModelData->m_szModelInfoFilePath.Left(pModelData->m_szModelInfoFilePath.ReverseFind('\\'));
 
-	
+
 		CurrentSet->sRefFolder = CurrentSet->sRefRootFolder + pModelData->m_szRefImgFolder;// .m_szRefImgFolder;
 		CurrentSet->sMaskFolder = CurrentSet->sRefFolder + "\\Mask";
 
@@ -2058,8 +2085,347 @@ LRESULT  CDATsysView::OnChangeModelOpen(WPARAM wParam, LPARAM lParam)
 	StartGrabThread();
 	//	if(bFlag) SetTimer(2, 2000, NULL);
 	return 0;
+#endif
+}
+
+
+
+int  CDATsysView::ChangeModelCheckOpen(CString lNewModelName)
+{
+	CWinApp* pApp = AfxGetApp();
+
+	int		nNoModel = 0;
+	CString sTmp = _T("");
+	CString sMsg = _T("");
+	BOOL bFlag;
+	BOOL bFindFlag;
+	BOOL bGrabFlag;
+	POSITION	Pos = NULL;
+	CModelData* pModelData = NULL;
+	//	UINT nVal1;//
+
+	if (OpenModelListFile(CurrentSet->sModelListPath, nNoModel, g_Divisions) == FALSE) return 0;
+
+	//+add PSH 090507
+	bFlag = m_SignalEnable;//g_pView->wIn_Flag;
+	//090615
+	AudioMeasureStop();
+	//-
+	StopGrabThread();
+
+	Sleep(100);
+	//BP250 - N.DJPNLLM
+	CString str;
+	CString lFindName;
+	CString lFoundedName;
+	lFindName = lNewModelName;
+	//lFindName.Replace(".", "_");
+	//str = "Check S/N is";
+	//str += lFindName;
+	//str += " MODEL. \r\n \r\n";
+	//str += "  Do You Change MODEL ?";
+
+	//	if(IDOK == MessageWindow(str))
+	if (1) // (IDYES == MessageBox(str, "New Model Detected", MB_YESNO))
+	{
+
+		//if (dlg.DoModal() == IDOK)
+		Pos = CurrentSet->ModelList.GetHeadPosition();
+		bFindFlag = 0;
+		while (Pos)
+		{
+			pModelData = CurrentSet->ModelList.GetNext(Pos);
+
+			if (pModelData->m_szChassisName != _T(""))
+			{
+				if (pModelData->m_szModelName.Find(lFindName) >= 0)
+				{
+					//lFindName = pModelData->m_szModelName;
+					lFoundedName = pModelData->m_szModelName;
+					bFindFlag = 1;
+					break;
+				}
+			}
+		}
+	}
+	else
+	{
+		return 0;
+	}
+
+	//CurrentSet->sModelSuffixName;
+	if (bFindFlag == 1)
+	{
+		//+move kwmoon 080818
+		CurrentSet->sSeqPath = CurrentSet->sServerFolder + pModelData->m_szSeqFilePath;
+		CurrentSet->sModelIni = CurrentSet->sModelInfoFolder + pModelData->m_szModelInfoFilePath;
+		CurrentSet->sModelFolder
+			= CurrentSet->sServerFolder
+			+ pModelData->m_szModelInfoFilePath.Left(pModelData->m_szModelInfoFilePath.ReverseFind('\\'));
+
+
+		CurrentSet->sRefFolder = CurrentSet->sRefRootFolder + pModelData->m_szRefImgFolder;// .m_szRefImgFolder;
+		CurrentSet->sMaskFolder = CurrentSet->sRefFolder + "\\Mask";
+
+		CurrentSet->sChassisName = pModelData->m_szChassisName;// .m_sSelChassis;
+		CurrentSet->sModelName = pModelData->m_szModelName;;
+
+		//add PSH 20091019
+		if (!FileExists(CurrentSet->sRefFolder)) {
+			CreateFullPath(CurrentSet->sRefFolder);
+			CreateFullPath(CurrentSet->sMaskFolder);
+		}
+
+		//=====================
+		// Open Model.ini File 
+		//=====================
+		if (FileExists(CurrentSet->sModelIni))
+		{
+			OpenModelIniFile(CurrentSet->sModelIni);
+
+			AvSwitchBoxCtrl.SetVideoOutType(CurrentSet->nAnalogType);
+
+			bGrabFlag = g_pView->m_bGrabThreadRunning;
+			StopGrabThread();
+			Sleep(500);
+			AnalogControl.SetVideoSourceType(CurrentSet->nAnalogType);
+			Sleep(500);
+			if (bGrabFlag) StartGrabThread();
+			SetGrabInfo(&g_GrabImage);
+		}
+		else
+		{
+			//	sMsg.Format("Failed to load file.\n[%s]",CurrentSet->sModelIni);
+			//	AfxMessageBox(sMsg);
+			CModelInfoCreate dlg;
+
+			dlg.m_sModelInfo_FileName = CurrentSet->sModelIni;
+			dlg.DoModal();
+		}
+
+		// position change PSH 080911
+		g_pView->SaveRegistrySetting();
+
+		//====================
+		// Open Sequence File 
+		//====================
+		if (FileExists(CurrentSet->sSeqPath))
+		{
+			if (Prescan(CurrentSet->sSeqPath) == TRUE)
+			{
+				CurrentSet->bCompiled = TRUE;
+				CurrentSet->lTime = GetModifyTime(CurrentSet->sSeqPath);
+			}
+			else
+			{
+				DeleteStepList();
+				CurrentSet->bCompiled = FALSE;
+
+				//+del kwmoon 081024
+				// change PSH 080603
+			//	CurrentSet->sSeqPath = dlg.m_strSeqFilePath;
+				CurrentSet->lTime = 0;
+			}
+		}
+		else
+		{
+			sMsg.Format("Failed to load file.\n[%s]", CurrentSet->sSeqPath);
+			AfxMessageBox(sMsg);
+
+			DeleteStepList();
+			CurrentSet->bCompiled = FALSE;
+			CurrentSet->sSeqPath = _T("");
+			CurrentSet->lTime = 0;
+		}
+
+
+		//==========================
+		// Open Test Parameter File 
+		//==========================
+		if (CurrentSet->sTestParamIni.IsEmpty())
+		{
+			CurrentSet->sTestParamIni = m_szExePath + "\\TestParam.Ini";
+		}
+
+		if (FileExists(CurrentSet->sTestParamIni))
+		{
+			OpenTestParamIniFile(CurrentSet->sTestParamIni);
+		}
+		else
+		{
+			sMsg.Format("Failed to load file.\n[%s]", CurrentSet->sTestParamIni);
+			AfxMessageBox(sMsg);
+		}
+
+		//===================
+		// Open Pattern File 
+		//===================
+		if (CurrentSet->sPatternTitle.IsEmpty())
+		{
+			CurrentSet->sPatternTitle = m_szExePath + "\\Pattern.pat";
+		}
+
+		if (FileExists(CurrentSet->sPatternTitle))
+		{
+			OpenPatternFile(CurrentSet->sPatternTitle);
+		}
+		else
+		{
+			sMsg.Format("Failed to load file.\n[%s]", CurrentSet->sPatternTitle);
+			AfxMessageBox(sMsg);
+		}
+
+		//===================
+		// Open Remocon File 
+		//===================
+/*		if(CurrentSet->sRemoconTitle.IsEmpty())
+		{
+			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_REMOTE.rmt";
+		}
+*/
+		switch (CurrentSet->nRemoteCustomCode)
+		{
+		case REMOCON_HT:
+			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_HT_REMOTE.rmt";
+			//	nVal1 = 0x2C;
+			break;
+
+		case REMOCON_MINI:
+			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_MINI_REMOTE.rmt";
+			//	nVal1 = 0x10;
+			break;
+
+		case REMOCON_BD:
+			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_BD_REMOTE.rmt";
+			break;
+
+		case REMOCON_PN:
+			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_PN_REMOTE.rmt";
+			break;
+
+		case REMOCON_LO:
+			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_LO_REMOTE.rmt";
+			break;
+
+		case REMOCON_NA:
+			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_NA_REMOTE.rmt";
+			break;
+
+		case REMOCON_SO:
+			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_SO_REMOTE.rmt";
+			break;
+
+		case REMOCON_CM:
+			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_LSC_CM_REMOTE.rmt";
+			break;
+
+		case REMOCON_GS:
+			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_LSC_GS_REMOTE.rmt";
+			break;
+
+		case REMOCON_TB:
+			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_LSC_TB_REMOTE.rmt";
+			break;
+
+		case REMOCON_SH:
+			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_LSH_REMOTE.rmt";
+			break;
+
+		case REMOCON_SI:
+			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_LSI_REMOTE.rmt";
+			break;
+
+		case REMOCON_JV:
+			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_JVC_REMOTE.rmt";
+			break;
+
+		default:
+			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_HT_REMOTE.rmt";
+			//	nVal1 = 0x2C;
+			break;
+		}
+
+
+		if (FileExists(CurrentSet->sRemoconTitle))
+		{
+			OpenRemoteFile(CurrentSet->sRemoconTitle);
+			
+		}
+		else
+		{
+			sMsg.Format("Failed to load file.\n[%s]", CurrentSet->sRemoconTitle);
+			AfxMessageBox(sMsg);
+		}
+
+		//AvSwitchBoxCtrl.SetAvSwitch(REMOTE_TYPE_SEL, MAX_AVSWITCH_WAIT_DELAY,  CurrentSet->nRemoteType, 0);
+
+		//====================
+		// Open Template File 
+		//====================
+		if (!CurrentSet->sFullSeqPath.IsEmpty())
+		{
+			if (FileExists(CurrentSet->sFullSeqPath))
+			{
+				OpenFullSeq(CurrentSet->sFullSeqPath);
+			}
+		}
+
+		//		UpdateInfo(MODEL, CurrentSet->sModelFolder);
+		UpdateInfo(MODEL, CurrentSet->sModelName);
+		UpdateInfo(CHASSIS, CurrentSet->sChassisName);
+		UpdateInfo(REF, CurrentSet->sRefFolder);
+		UpdateInfo(SEQ, CurrentSet->sSeqPath);
+
+		ctrlSuffixEdit.SetWindowText(CurrentSet->sModelSuffixName);
+
+		/*
+				UpdateInfo(TOOL_OPTION1,CurrentSet->sToolOption1);
+				UpdateInfo(TOOL_OPTION2,CurrentSet->sToolOption2);
+				UpdateInfo(TOOL_OPTION3,CurrentSet->sToolOption3);
+				UpdateInfo(TOOL_OPTION4,CurrentSet->sToolOption4);
+				UpdateInfo(TOOL_OPTION5,CurrentSet->sToolOption5);
+				UpdateInfo(AREA_OPTION1,CurrentSet->sAreaOption1);
+				UpdateInfo(CPU_VERSION,CurrentSet->sCPUVersion);
+				UpdateInfo(MICOM_VERSION,CurrentSet->sMicomVersion);
+				UpdateInfo(USB_VERSION,CurrentSet->sUSBVersion);
+		*/
+
+		UpdateVersionInfo();
+
+		InsertStepData2Grid(CurrentSet->nDisplayType);
+
+		//+add psh 080701
+		if (TVCommCtrl.m_bPortOpen)
+		{
+			TVCommCtrl.PortClose();
+		}
+
+		if (TVCommCtrl.Create(CurrentSet->sTVComPort, CurrentSet->wTVBaudRate) == FALSE)
+		{
+			TVCommCtrl.PortClose();
+			TVCommCtrl.Create(CurrentSet->sTVComPort, CurrentSet->wTVBaudRate);
+			if (TVCommCtrl.m_bPortOpen == FALSE)
+			{
+				CString szErrMsg;
+				szErrMsg.Format("Failed to open COM port (%s)", CurrentSet->sTVComPort);
+				AfxMessageBox(szErrMsg);
+			}
+		}
+		//-
+	}
+
+	//+add PSH 090615
+	StartGrabThread();
+	//	if(bFlag) SetTimer(2, 2000, NULL);
+
+	if (bFindFlag == 1)
+		return 1;
+	else
+		return 0;
 
 }
+
+
 BOOL CDATsysView::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, CCreateContext* pContext) 
 {
 	// TODO: Add your specialized code here and/or call the base class
@@ -3342,7 +3708,42 @@ LRESULT CDATsysView::RunTest(WPARAM wParam, LPARAM lParam)
 				gGmesCtrl.m_sSetID = sTmp;
 			//	m_strWipId = "AAX74167611404HI140826";
 			//	m_strWipId = "TS372100XL";
-				
+				if (CurrentSet->bUploadMes)
+				{
+					if ((CurrentSet->nProcessType == 0) || (CurrentSet->nProcessType == 1))
+					{
+						if (m_strWipId.GetLength() > 11)
+						{
+							if (m_strWipId.Find(CurrentSet->sModelName) != 0)
+							{
+								CString lFindName;
+									lFindName = m_strWipId.Left(11);
+									CString str;
+									str = "PCB S/N MODEL is [";
+									str += lFindName;
+									str += "]. \r\n \r\n";
+									str += "  Will You Change MODEL ?";
+
+									//	if(IDOK == MessageWindow(str))
+									if (IDYES == MessageBox(str, "New Model Detected", MB_YESNO))
+									{
+
+										if (ChangeModelCheckOpen(lFindName) == 0)
+										{
+
+											AfxMessageBox("Model Change Fail! \r\n \r\n Please Check Model Name! \r\n \r\n");
+											CurrentSet->bIsRunMsg = FALSE; return 0;
+										}
+									}
+							}
+						}
+						else
+						{
+							AfxMessageBox("Model Name Check Fail! \r\n \r\n Please Check Wip ID! \r\n \r\n");
+							CurrentSet->bIsRunMsg = FALSE; return 0;
+						}
+					}
+				}
 			}
 
 			if(CurrentSet->bUseScanner)
@@ -5550,6 +5951,13 @@ LRESULT CDATsysView::ShowResultDisplay(WPARAM wParam, LPARAM lParam)
 void CDATsysView::OnOption() 
 {
 	BOOL bFlag;
+
+//#ifdef	_DEBUG
+//	//BP250 - N.DJPNLLM
+//	
+//	CurrentSet->sModelSuffixName = "BP250-N.DJPNLLM";
+//	OnChangeModelOpen(0, 0);
+//#endif
 
 	if ((CurrentSet->nAuthority != AUTHORITY_DEV) && (CurrentSet->nAuthority != AUTHORITY_ADMIN))
 	{
@@ -10822,10 +11230,58 @@ LRESULT CDATsysView::OnUpdateGraph(WPARAM wParam, LPARAM lParam)
 
 	m_Frequency_Right = lFreq_Right;
 	m_Frequency_Left = lFreq_Left;
+
+
+	double sDisplayScaleRateLeft = 1;
+	double sDisplayScaleRateRight = 1;
 #ifdef __NEW_WAVE_DISPLAY	
 	m_Voltage_Left = lVolume_Left  *2.5;
 	m_Voltage_Right = lVolume_Right  *2.5;
 #else
+	double sSacleRate[] = {	
+	0.008,//0
+	0.021,//1
+	0.037,//2
+	0.056,//3
+	0.078,//4
+	0.101,//5
+	0.132,//6
+	0.164,//7
+	0.201,//8
+	0.244,//9
+	0.292,//10
+	0.343,//11
+	0.403,//12
+	0.471,//13
+	0.545,//14
+	0.630,//15
+	};
+	int lRateID = int((m_Frequency_Right - 400) / 100);
+	
+	if ((m_Frequency_Right > 500)&&(m_Frequency_Right < 2000)&& lRateID > 0)
+	{
+		sDisplayScaleRateRight = (1 + sSacleRate[lRateID-1] +( sSacleRate[lRateID] - sSacleRate[lRateID - 1] )* (m_Frequency_Right - (lRateID * 100 + 400))/100);
+		lVolume_Right = lVolume_Right * sDisplayScaleRateRight;// (1 + sSacleRate[lRateID - 1] + (sSacleRate[lRateID] - sSacleRate[lRateID - 1]) * (m_Frequency_Right - (lRateID * 100 + 400)) / 100);
+	}
+	else if ( m_Frequency_Right >= 2000)
+	{
+		sDisplayScaleRateRight =(1 + sSacleRate[14] + (sSacleRate[15] - sSacleRate[14]) * (m_Frequency_Right - (14 * 100 + 400)) / 100);
+		lVolume_Right = lVolume_Right * sDisplayScaleRateRight;// (1 + sSacleRate[14] + (sSacleRate[15] - sSacleRate[14]) * (m_Frequency_Right - (14 * 100 + 400)) / 100);
+	}
+	lRateID = int((m_Frequency_Left - 400) / 100);
+	if ((m_Frequency_Left > 500)&&(m_Frequency_Left < 2000)&& lRateID > 0)
+	{
+		sDisplayScaleRateLeft = (1 + sSacleRate[lRateID-1] +( sSacleRate[lRateID] - sSacleRate[lRateID - 1] )* (m_Frequency_Left - (lRateID * 100 + 400))/100);
+		lVolume_Left = lVolume_Left * sDisplayScaleRateLeft;//			(1 + sSacleRate[lRateID-1] +( sSacleRate[lRateID] - sSacleRate[lRateID - 1] )* (m_Frequency_Right - (lRateID * 100 + 400))/100);
+	}
+	else if (m_Frequency_Left >= 2000)
+	{
+		sDisplayScaleRateLeft =(1 + sSacleRate[14] + (sSacleRate[15] - sSacleRate[14]) * (m_Frequency_Left - (14 * 100 + 400)) / 100);
+		lVolume_Left = lVolume_Left * sDisplayScaleRateLeft;//			(1 + sSacleRate[14] + (sSacleRate[15] - sSacleRate[14]) * (m_Frequency_Right - (14 * 100 + 400)) / 100);
+	}	
+	
+	//m_Frequency_Left = lFreq_Left;
+
 	m_Voltage_Left = lVolume_Left;
 	m_Voltage_Right = lVolume_Right;
 #endif
@@ -10881,10 +11337,12 @@ LRESULT CDATsysView::OnUpdateGraph(WPARAM wParam, LPARAM lParam)
 	 //memcpy(lDisplayAdjustDbufferL, lDbufferDisplayL, sizeof(PlotData_T) * 1000);
 	 ////=(0.9 + 50/E11*9)*E11  =(0.92 + 100/E7*4)*E7 50 => 5000, 
 #else
+	 sDisplayScaleRateLeft = sDisplayScaleRateLeft / 10.0;
+	 sDisplayScaleRateRight = sDisplayScaleRateRight / 10.0;
 	 for (int i = 0; i < 1000; i++)
 	 {
-		 m_PlotDataR[i].Data = lDisplayAdjustDbufferR[i] / 10; //(0.9 + 0.5 / lDbufferDisplayR[i] * 9) * lDbufferDisplayR[i]/ (10); //m_Lodata[i] / (10000 / 2.0) - 1.0;// (Check_data(0,i) - 50.0) / 50.0;
-		 m_PlotDataL[i].Data = lDisplayAdjustDbufferL[i] / 10; //(0.9 + 0.5 / lDbufferDisplayL[i] * 9) * lDbufferDisplayL[i]/ (10); //m_Lodata[i] / (10000 / 2.0) - 1.0;// (Check_data(0,i) - 50.0) / 50.0;
+		 m_PlotDataR[i].Data = lDisplayAdjustDbufferR[i] * sDisplayScaleRateRight;// / 10; //(0.9 + 0.5 / lDbufferDisplayR[i] * 9) * lDbufferDisplayR[i]/ (10); //m_Lodata[i] / (10000 / 2.0) - 1.0;// (Check_data(0,i) - 50.0) / 50.0;
+		 m_PlotDataL[i].Data = lDisplayAdjustDbufferL[i] * sDisplayScaleRateLeft;// / 10; //(0.9 + 0.5 / lDbufferDisplayL[i] * 9) * lDbufferDisplayL[i]/ (10); //m_Lodata[i] / (10000 / 2.0) - 1.0;// (Check_data(0,i) - 50.0) / 50.0;
 	 }
 #endif
 	 if (m_Sound_Display_Enable == 1)

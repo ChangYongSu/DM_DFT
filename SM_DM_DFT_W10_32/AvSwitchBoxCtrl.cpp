@@ -938,6 +938,93 @@ BOOL CAvSwitchBox::SendRemoteCmd(int nWaitLimit, int nRemoteType, CString sCusto
 	}
 }
 
+BOOL CAvSwitchBox::SetFreqCmd(int nWaitLimit, int nAudioPort, int L_Freq, int R_Freq)
+{
+	// 0 : NO Test, 1 : Receive Pass, 2 : Receive Fail, 3 : Receive TimeOut, 4 : Cmd Send Retry, 5 : Send Cmd Fail
+	CString szCmdString = _T("");
+	CString szSwitchBoxMsg = _T("");
+	CString sRType = _T("");
+	CString sValue = _T("");
+	CString sTmp = _T("");
+
+	UINT nRtn = 0;
+	UINT nValue = 0;
+	m_strErrMsg = _T("");
+
+	clock_t		start = clock();
+	int			nElapsedTime = 0;
+
+	if (m_bPortOpen == FALSE) return FALSE;
+
+	m_nAvSwitchCmd = SET_AUDIO_FRQ;
+
+	if (L_Freq > 9990)
+		L_Freq = 9990;
+	if (R_Freq > 9990)
+		R_Freq = 9990;
+	if ((nAudioPort >= 1) && (nAudioPort <= 8))
+	{
+		nAudioPort -= 1;
+	}
+	
+	
+	sTmp.Format("%cCFSET%02d%03d%03d%c%c%c", STX, nAudioPort, L_Freq/10, R_Freq/10, ETX, CR, LF);
+
+	
+	szCmdString = sTmp;
+	
+
+	if (!SendCommString(szCmdString))
+	{
+		m_strErrMsg.Format("SEND FAIL");
+		nRtn = 5;
+	}
+	else
+	{
+		nRtn = CheckReceiveMsg(SET_AUDIO_FRQ, nWaitLimit, sValue);
+
+		if (nRtn == 1) { m_strErrMsg = _T("PASS"); }
+		else if (nRtn == 2) { m_strErrMsg.Format("FAIL"); }
+		else if (nRtn == 3) { m_strErrMsg.Format("TIMEOUT"); }
+		else if (nRtn == 4)
+		{
+			if (!SendCommString(szCmdString))
+			{
+				m_strErrMsg.Format("SEND FAIL");
+				nRtn = 5;
+			}
+			else
+			{
+				nRtn = CheckReceiveMsg(SET_AUDIO_FRQ, nWaitLimit, sValue);
+
+				if (nRtn == 1) { m_strErrMsg = _T("PASS"); }
+				else if (nRtn == 2) { m_strErrMsg.Format("FAIL"); }
+				else if (nRtn == 3) { m_strErrMsg.Format("TIMEOUT"); }
+				else if (nRtn == 4)
+				{
+					m_strErrMsg.Format("BUSY");
+				}
+			}
+		}
+	}
+
+	nElapsedTime = (clock() - start) * 1000 / CLOCKS_PER_SEC;
+	//-
+
+	if (CurrentSet->bCommDisplay)
+	{
+		sTmp.Format("Freq Set %s : %s[%dms]", szCmdString, m_strErrMsg, nElapsedTime);
+		AddStringToRemoteComLog(sTmp);
+	}
+
+	if (nRtn == 1) return TRUE;
+	else
+	{
+		AfxMessageBox("Failed to send FreqSet Command!");
+		return FALSE;
+	}
+}
+
 BOOL CAvSwitchBox::CheckAudio(int nCmd, int nWaitLimit, CString& sValue, int nValue1, int nValue2)
 {
 // 0 : NO Test, 1 : Receive Pass, 2 : Receive Fail, 3 : Receive TimeOut, 4 : Cmd Send Retry, 5 : Send Cmd Fail

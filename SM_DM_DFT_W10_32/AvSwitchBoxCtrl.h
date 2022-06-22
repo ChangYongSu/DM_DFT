@@ -98,6 +98,7 @@ public :
 	BOOL	SetAvSwitch(int nCmd, int nWaitLimit, int nValue1 = 0, int nValue2 = 0);
 	BOOL	SendRemoteCmd(int nWaitLimit, int nRemoteType, CString sCustom, CString sCmd, int nByte);
 	BOOL	CheckAudio(int nCmd, int nWaitLimit, CString& sValue, int nValue1 = 0, int nValue2 = 0);
+	BOOL	SetFreqCmd(int nWaitLimit, int nAudioPort, int L_Freq, int R_Freq);
 
 	BOOL	InitAvSwitch();
 	BOOL    AudioMeasure();

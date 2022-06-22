@@ -171,8 +171,8 @@ void CUserMsgDlg::SetMessage(CString szMessage1, CString szMessage2)
 {
 	m_szMsg1 = szMessage1;
 	m_szMsg2 = szMessage2;
-	m_DelayTime = 50000;
-	
+//Mr IN, 220210 	m_DelayTime = 50000;
+	m_DelayTime = 5000000;//220426
 }
 
 void CUserMsgDlg::SetMessageTime(CString szMessage1, CString szMessage2, int lDely)

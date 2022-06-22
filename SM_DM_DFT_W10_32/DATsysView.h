@@ -396,6 +396,8 @@ public :
 	void UpdateToolOptionInfo();
 	void InitVersionGrid();
 	void UpdateVersionInfo();
+	int  ChangeModelCheckOpen(CString lNewModelName);
+
 
 // Operations
 public:
