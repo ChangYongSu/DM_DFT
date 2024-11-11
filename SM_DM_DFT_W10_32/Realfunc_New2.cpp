@@ -21,6 +21,7 @@
 
 #include "UsbDio.h"
 #include "PciDio.h"
+#include "SMDIO_Jig_Ctrl.h"
 
 ///////////////////////
 // External Variable //
@@ -4687,4 +4688,73 @@ BOOL _Set_MacAddress()
 		return FALSE;
 
 	return TRUE;
+}
+BOOL _SM_DI_Set()
+{
+	int nChannelNo;
+	int nFlag;
+	BOOL bRet;
+
+	pos = pCurFunc->m_ArgumentList.GetHeadPosition();
+
+	if (pos != NULL)
+	{
+		nChannelNo = GetInteger();
+		nFlag = GetInteger();
+	}
+	else
+	{
+		return FALSE;
+	}
+
+	bRet = gSMDIO_Ctrl.SetTargetDi(nChannelNo - 1, nFlag);
+	
+	return bRet;
+}
+
+BOOL _SM_DO_Set()
+{
+	int nChannelNo;
+	int nFlag;
+	BOOL bRet;
+
+	pos = pCurFunc->m_ArgumentList.GetHeadPosition();
+
+	if (pos != NULL)
+	{
+		nChannelNo = GetInteger();
+		nFlag = GetInteger();
+	}
+	else
+	{
+		return FALSE;
+	}
+
+	bRet = gSMDIO_Ctrl.SetTargetDo(nChannelNo - 1, nFlag);
+	
+	return bRet;
+}
+
+BOOL _SM_VI_Set()
+{
+	int nChannelNo;
+	double  nMin,nMax;
+	BOOL bRet;
+
+	pos = pCurFunc->m_ArgumentList.GetHeadPosition();
+
+	if (pos != NULL)
+	{
+		nChannelNo = GetInteger();
+		nMin = GetDouble();
+		nMax = GetDouble();
+	}
+	else
+	{
+		return FALSE;
+	}
+
+	bRet = gSMDIO_Ctrl.SetTargetVi(nChannelNo - 1, nMin, nMax);
+	
+	return bRet;
 }

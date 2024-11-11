@@ -117,6 +117,10 @@ void CModelInfoCreate::OnCancel()
 	CurrentSet->sDJSound_Version    = "";
 	CurrentSet->sWirelessTx_Version = "";
 	CurrentSet->sWirelessRx_Version = "";
+	CurrentSet->sWoofer_Rx_Version = "";
+	CurrentSet->sRear_Kit_Rx_Version = "";
+	CurrentSet->sRear_SPK_L_Version = "";
+	CurrentSet->sRear_SPK_R_Version = "";
 	CurrentSet->sBT_Version = "";
 	CurrentSet->sHDMI_Version = "";
 	CurrentSet->sChecksum	          = "";

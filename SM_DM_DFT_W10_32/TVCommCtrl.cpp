@@ -129,6 +129,8 @@ BOOL CTVCommCtrl::SendCommString(CString str)
 	::ResetEvent(m_hReadEvent);
 
 	m_sReceive = _T("");
+	m_nReceiveLength = 0;
+	
 
 	int nRtn = m_ctrlTVCommCtrl.WriteComm((BYTE*)(LPCTSTR)str, str.GetLength());
 	
@@ -144,6 +146,7 @@ BOOL CTVCommCtrl::Send_ResultKey( BOOL bResult)
 	CString szPrevMsg = _T("");
 	CString szCmdString;
 	m_sReceive = _T("");
+	m_nReceiveLength = 0;
 
 	if(CurrentSet->nProcessType > 1){return TRUE;}
 
@@ -199,6 +202,12 @@ BOOL CTVCommCtrl::SendCommand(BYTE nCmd)
 	CString szPrevMsg = _T("");
 	CString szCmdString;
 	m_sReceive = _T("");
+	m_nReceiveLength = 0;
+
+	if (m_bPortOpen == 0)
+	{
+		return FALSE;
+	}
 
 	for(int i=0; i<5; i++)
 	{
@@ -217,7 +226,7 @@ BOOL CTVCommCtrl::SendCommand(BYTE nCmd)
 
 
 	szCmdString.Format("%02X %02X %02X %02X %02X", m_nSendData[0], m_nSendData[1], m_nSendData[2], m_nSendData[3], m_nSendData[4]);
-	if(CurrentSet->bIsRunning && CurrentSet->bCommDisplay)
+	//if(CurrentSet->bIsRunning && CurrentSet->bCommDisplay)
 	{
 		AddStringToStatus("DFT>:" + szCmdString);
 	}
@@ -379,6 +388,7 @@ BOOL CTVCommCtrl::ReceiveCommString(int nWaitLimit)
         {
 			m_ctrlTVCommCtrl.m_QueueRead.Clear();
 			m_strSendStr = _T("");
+			m_bCheckReadVersionCommError = 1;
 			return FALSE;
 		}
 
@@ -544,8 +554,15 @@ BOOL CTVCommCtrl::Firmware_VersionCheck(int nIndex, CString sVersion)
 	BYTE nCheckSum2  = 0x00;
 	int i;
 	BOOL bCheckSum_Check = TRUE;
+	m_bCheckReadVersion = 0;
 
+	if (m_bPortOpen == 0)
+	{
+		m_bCheckReadVersionCommError = 1;
+		return FALSE;
+	}
 
+	m_bCheckReadVersionCommError = 0;
 	m_bCheckReadVersion = 0;
 
 	switch(nIndex)
@@ -618,6 +635,47 @@ BOOL CTVCommCtrl::Firmware_VersionCheck(int nIndex, CString sVersion)
 			}
 			sVerName = "WirelessRx_Ver:";
 			break;
+			//0x4C	Woofer Rx Version
+			//	0x4D	Rear Kit Rx Version
+			//	0x4E	Rear SPK L Version
+			//	0x4F	Rear SPK R Version
+		case WOOFER_RX_VER:
+			nCmd = 0x4C;
+			if (CurrentSet->nChipType == CHIP_MCS)
+			{
+				bHexType = TRUE;
+			}
+			sVerName = "WooferRxVersion:";
+			break;
+
+		case REAR_KIT_RX_VER:
+			nCmd = 0x4D;
+			if (CurrentSet->nChipType == CHIP_MCS)
+			{
+				bHexType = TRUE;
+			}
+			sVerName = "RearKitRxVersion:";
+			break;
+
+		case REAR_SPK_L_VER:
+			nCmd = 0x4E;
+			if (CurrentSet->nChipType == CHIP_MCS)
+			{
+				bHexType = TRUE;
+			}
+			sVerName = "RearSPK_L_Version:";
+			break;
+
+		case REAR_SPK_R_VER:
+			nCmd = 0x4F;
+			if (CurrentSet->nChipType == CHIP_MCS)
+			{
+				bHexType = TRUE;
+			}
+			sVerName = "RearSPK_R_Version:";
+			break;
+
+							
 		case BT_VER:
 			nCmd = 0x2F;
 			if (CurrentSet->nChipType == CHIP_MCS)
@@ -653,12 +711,14 @@ BOOL CTVCommCtrl::Firmware_VersionCheck(int nIndex, CString sVersion)
 
 	if(!SendCommand(nCmd))
 	{
+		m_bCheckReadVersionCommError = 1;
 		return FALSE;
 	}
 	//20210120 Time //_Wait(200);
 
 	if(!ReceiveCommString(5000))
 	{
+
 		return FALSE;
 	}
 
@@ -726,7 +786,7 @@ BOOL CTVCommCtrl::Firmware_VersionCheck(int nIndex, CString sVersion)
 
 }
 
-BOOL CTVCommCtrl::Firmware_VersionRead(int nIndex, CString &sVersion)
+BOOL CTVCommCtrl::Firmware_VersionRead(int nIndex)
 {
 	BOOL bHexType = FALSE;
 	BYTE nCmd;
@@ -826,7 +886,45 @@ BOOL CTVCommCtrl::Firmware_VersionRead(int nIndex, CString &sVersion)
 		}
 		sVerName = "HDMI_Ver:";
 		break;
+		//0x4C	Woofer Rx Version
+			//	0x4D	Rear Kit Rx Version
+			//	0x4E	Rear SPK L Version
+			//	0x4F	Rear SPK R Version
+	case WOOFER_RX_VER:
+		nCmd = 0x4C;
+		if (CurrentSet->nChipType == CHIP_MCS)
+		{
+			bHexType = TRUE;
+		}
+		sVerName = "WooferRxVersion:";
+		break;
 
+	case REAR_KIT_RX_VER:
+		nCmd = 0x4D;
+		if (CurrentSet->nChipType == CHIP_MCS)
+		{
+			bHexType = TRUE;
+		}
+		sVerName = "RearKitRxVersion:";
+		break;
+
+	case REAR_SPK_L_VER:
+		nCmd = 0x4E;
+		if (CurrentSet->nChipType == CHIP_MCS)
+		{
+			bHexType = TRUE;
+		}
+		sVerName = "RearSPK_L_Version:";
+		break;
+
+	case REAR_SPK_R_VER:
+		nCmd = 0x4F;
+		if (CurrentSet->nChipType == CHIP_MCS)
+		{
+			bHexType = TRUE;
+		}
+		sVerName = "RearSPK_R_Version:";
+		break;
 	case CHECKSUM_VER:
 		nCmd = 0x2D;
 		if (CurrentSet->nChipType == CHIP_MCS)
@@ -848,74 +946,67 @@ BOOL CTVCommCtrl::Firmware_VersionRead(int nIndex, CString &sVersion)
 	}
 	//20210120 Time //_Wait(200);
 
-	if (!ReceiveCommString(5000))
-	{
-		return FALSE;
-	}
-
-	for (i = 0; i < m_nRevLength; i++)
-	{
-		sTemp.Format("%02X ", m_nRevData[i]);
-		szMsg1 = szMsg1 + sTemp;
-	}
-	for (i = 0; i < m_nRevLength - 1; i++)
-	{
-		nCheckSum1 = nCheckSum1 ^ m_nRevData[i];
-	}
-
-	nCheckSum2 = m_nRevData[m_nRevLength - 1];
-	if (nCheckSum1 != nCheckSum2) {
-		sTemp.Format(",CheckSum Fail(%02X,%02X)", nCheckSum1, nCheckSum2);
-		//szMsg1 = szMsg1 + sTemp;
-		bCheckSum_Check = FALSE;
-		AddStringToStatus(sTemp);
-	}
-
-	for (i = 4; i < m_nRevLength - 1; i++)
-	{
-		if (bHexType) {
-			sTemp.Format("%02X", m_nRevData[i]);
-		}
-		else {
-			sTemp.Format("%c", m_nRevData[i]);
-		}
-		sReadData = sReadData + sTemp;
-
-	}
-	sTemp.Format("(%s%s)", sVerName, sReadData);
-	if (CurrentSet->bIsRunning && CurrentSet->bCommDisplay)
-	{
-		AddStringToStatus(sTemp);
-	}
-
-	/*if ((CurrentSet->bIsRunning) && (CurrentSet->nDisplayType == DETAILEDGRID))
-	{
-		g_pView->GetResultFromDetailedGrid(pCurStep->m_nStep, szPrevMsg);
-
-		if (szPrevMsg != _T(""))
-		{
-			g_pView->InsertMsg2DetailedGrid(pCurStep->m_nStep, szPrevMsg + " , " + szMsg1);
-			pCurStep->m_strMsg = szPrevMsg + " , " + szMsg1 + sTemp;
-		}
-		else
-		{
-			g_pView->InsertMsg2DetailedGrid(pCurStep->m_nStep, szMsg1);
-			pCurStep->m_strMsg = szMsg1 + sTemp;
-		}
-	}*/
-
-	if (!bCheckSum_Check) { return FALSE; }
-
-	sVersion = sReadData;
-
-	////	sVersion.MakeUpper(); 
-	//if (sReadData.Compare(sVersion) == 0) {
-	//	return TRUE;
-	//}
-	//else {
+	//if (!ReceiveCommString(5000))
+	//{
 	//	return FALSE;
 	//}
 
+	//for (i = 0; i < m_nRevLength; i++)
+	//{
+	//	sTemp.Format("%02X ", m_nRevData[i]);
+	//	szMsg1 = szMsg1 + sTemp;
+	//}
+	//for (i = 0; i < m_nRevLength - 1; i++)
+	//{
+	//	nCheckSum1 = nCheckSum1 ^ m_nRevData[i];
+	//}
+
+	//nCheckSum2 = m_nRevData[m_nRevLength - 1];
+	//if (nCheckSum1 != nCheckSum2) {
+	//	sTemp.Format(",CheckSum Fail(%02X,%02X)", nCheckSum1, nCheckSum2);
+	//	//szMsg1 = szMsg1 + sTemp;
+	//	bCheckSum_Check = FALSE;
+	//	AddStringToStatus(sTemp);
+	//}
+
+	//for (i = 4; i < m_nRevLength - 1; i++)
+	//{
+	//	if (bHexType) {
+	//		sTemp.Format("%02X", m_nRevData[i]);
+	//	}
+	//	else {
+	//		sTemp.Format("%c", m_nRevData[i]);
+	//	}
+	//	sReadData = sReadData + sTemp;
+
+	//}
+	//sTemp.Format("(%s%s)", sVerName, sReadData);
+	//if (CurrentSet->bIsRunning && CurrentSet->bCommDisplay)
+	//{
+	//	AddStringToStatus(sTemp);
+	//}
+
+	///*if ((CurrentSet->bIsRunning) && (CurrentSet->nDisplayType == DETAILEDGRID))
+	//{
+	//	g_pView->GetResultFromDetailedGrid(pCurStep->m_nStep, szPrevMsg);
+
+	//	if (szPrevMsg != _T(""))
+	//	{
+	//		g_pView->InsertMsg2DetailedGrid(pCurStep->m_nStep, szPrevMsg + " , " + szMsg1);
+	//		pCurStep->m_strMsg = szPrevMsg + " , " + szMsg1 + sTemp;
+	//	}
+	//	else
+	//	{
+	//		g_pView->InsertMsg2DetailedGrid(pCurStep->m_nStep, szMsg1);
+	//		pCurStep->m_strMsg = szMsg1 + sTemp;
+	//	}
+	//}*/
+
+	//if (!bCheckSum_Check) { return FALSE; }
+
+	//sVersion = sReadData;
+
+	return TRUE;
 }
 
 
@@ -1051,7 +1142,9 @@ BOOL CTVCommCtrl::PortClear()
 
 	return TRUE;
 }
+
 //TVCommCtrl.m_nReceiveData[TVCommCtrl.m_nReceiveLength
+
 BOOL CTVCommCtrl::Boot_Check(int nWait)
 {
 	CString sIndex;
@@ -1060,6 +1153,16 @@ BOOL CTVCommCtrl::Boot_Check(int nWait)
 	CString szMsg1 = _T("");
 	CString szPrevMsg = _T("");
 
+	//BOOL bResult = TRUE;
+	//int nNoTest = m_aMacAdd.GetSize();
+	//if (bWifi) { nCmd = 0x46; }
+
+	BYTE nCmd = 0xF7; 
+
+	if (!SendCommand(nCmd))
+	{
+		return FALSE;
+	}
 	
 	if(!ReceiveCommString( nWait))
 	{
@@ -1273,8 +1376,12 @@ BOOL CTVCommCtrl::MAC_AddressCheck(BOOL bWifi)
 
 	return bResult;
 }
+//#define _COMMAND_BT_MAC_READ     0x44
+// #define _COMMAND_LAN_MAC_READ     0x45
+//#define _COMMAND_WIFI_MAC_READ     0x46
+//#define _COMMAND_CHECK_SUM_READ     0x2D
 
-BOOL CTVCommCtrl::MAC_AddressRead(CString &sMac_add, BOOL bWifi)
+BOOL CTVCommCtrl::MAC_AddressRead(CString &sMac_add, int nMacKind)
 {
 	BYTE nCmd;
 	CString sReadData;
@@ -1289,8 +1396,9 @@ BOOL CTVCommCtrl::MAC_AddressRead(CString &sMac_add, BOOL bWifi)
 
 	BOOL bResult = TRUE;
 
-	if(bWifi){ nCmd = 0x46;}
-	else{ nCmd = 0x45;}
+	if (nMacKind == 1) { nCmd = _COMMAND_WIFI_MAC_READ; }
+	else if (nMacKind == 2) { nCmd = _COMMAND_BT_MAC_READ; }
+	else{ nCmd = _COMMAND_LAN_MAC_READ;}
 
 	if(!SendCommand(nCmd))
 	{

@@ -27,6 +27,10 @@ double _Lan_MAC_Add_Check();
 double _Serial_Number_Check();
 double _IRDataCheck();
 double _MAC_Add_CheckGmes();
+double _Wifi_MAC_Read_Gmes();
+double _BT_MAC_Read_Gmes();
 double _Mic_Diff_Level_Check();
+double _SM_DI_Check();
+double _SM_VI_Check();
 
 #endif	// __REALMEAS_H__

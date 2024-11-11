@@ -32,6 +32,11 @@ public:
 	CComboBox	m_ctrlProcessTypeCmb;
 	CComboBox	m_ctrlChipTypeCmb1;
 	CComboBox	m_ctrlChipTypeCmb2;
+
+	CButton m_ctrlUseDIOJigChk;
+	CComboBox m_ctrlDIOJigComportCmb;
+	CComboBox  m_ctrlDIOJigBaudCmb;
+
 	CButton	m_ctrlUseThChk;
 	CComboBox	m_ctrlThComportCmb;
 	CComboBox	m_ctrlThBaudCmb;
@@ -109,6 +114,7 @@ public:
 	void		SetHDMIGenGroup(BOOL bEnable);
 // add 20100622
 	void		SetThGroup(BOOL bEnable);
+	void	SetDIOJigGroup(BOOL bEnable);
 
 	//+add kwmoon 080625
 	void		SetIrChkGroup(BOOL bEnable);
@@ -116,6 +122,8 @@ public:
 //////////////////////////////////////////////////////////////////////////
 
 		
+	afx_msg void OnBnClickedChkUseScanner2();
+	afx_msg void OnBnClickedChkUseDioJig();
 };
 
 //{{AFX_INSERT_LOCATION}}

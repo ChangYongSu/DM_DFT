@@ -22,6 +22,7 @@
 #include "thermometer.h"
 #include "IrCheckerCtrl.h"
 #include "Gmes.h"
+#include "SMDIO_Jig_Ctrl.h"
 
 // Extern
 extern CDATsysView*		g_pView;
@@ -1998,6 +1999,11 @@ double	_Version_Check()
 	BOOL bResult13 = TRUE;
 	BOOL bResult14 = TRUE;
 	BOOL bResult15 = TRUE;
+	BOOL bResult16 = TRUE;
+	BOOL bResult17 = TRUE;
+	BOOL bResult18 = TRUE;
+	BOOL bResult19 = TRUE;
+
 	//	int  nI2cResult;
 	int i;
 	int nData[3]   = {0,0,0};
@@ -2024,12 +2030,13 @@ double	_Version_Check()
 			for (i = 0; i < 3; i++) {
 				bResult1 = TVCommCtrl.Firmware_VersionCheck(DSP_VER, CurrentSet->sDSP_Version);
 				if (bResult1) { break; }
-				if (CurrentSet->bRunAbort) { return 0.0; }
+				if (CurrentSet->bRunAbort) { return 0.0; }	
+				if (bResult1 == FALSE)
+				{
+					if(TVCommCtrl.m_bCheckReadVersionCommError == 1)
+					 return 0.0;
+				}
 			}
-			//if (bResult1 == FALSE)
-			//{
-			//	return 0.0;
-			//}
 			_Wait(200);
 		}
 		if (CurrentSet->bVerChecked[BE_VER - 1] == 1)
@@ -2038,13 +2045,14 @@ double	_Version_Check()
 			for (i = 0; i < 3; i++) {
 				bResult2 = TVCommCtrl.Firmware_VersionCheck(BE_VER, CurrentSet->sBE_Version);
 				if (bResult2) { break; }
-				if (CurrentSet->bRunAbort) { return 0.0; }
+				if (CurrentSet->bRunAbort) { return 0.0; }	
+				if (bResult2 == FALSE)
+				{
+					if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+					return 0.0;
+				}
 			}
-/*			if (bResult2 == FALSE)
-			{
-				return 0.0;
-			}
-	*/			
+				
 			_Wait(200);
 			
 		}
@@ -2055,12 +2063,13 @@ double	_Version_Check()
 			for (i = 0; i < 3; i++) {
 				bResult1 = TVCommCtrl.Firmware_VersionCheck(BE_VER, CurrentSet->sBE_Version);
 				if (bResult1) { break; }
-				if (CurrentSet->bRunAbort) { return 0.0; }
+				if (CurrentSet->bRunAbort) { return 0.0; }	
+				if (bResult1 == FALSE)
+				{
+					if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+					return 0.0;
+				}
 			}
-			//if (bResult1 == FALSE)
-			//{
-			//	return 0.0;
-			//}
 			_Wait(200);
 		}
 
@@ -2070,13 +2079,15 @@ double	_Version_Check()
 			for (i = 0; i < 3; i++) {
 				bResult2 = TVCommCtrl.Firmware_VersionCheck(DSP_VER, CurrentSet->sDSP_Version);
 				if (bResult2) { break; }
-				if (CurrentSet->bRunAbort) { return 0.0; }
+				if (CurrentSet->bRunAbort) { return 0.0; }	
+				if (bResult2 == FALSE)
+				{
+					if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+					return 0.0;
+				}
+
 			}
 				
-			//if (bResult2 == FALSE)
-			//{
-			//	return 0.0;
-			//}
 
 			_Wait(200);
 		}
@@ -2088,12 +2099,13 @@ double	_Version_Check()
 		for (i = 0; i < 3; i++) {
 			bResult3 = TVCommCtrl.Firmware_VersionCheck(FE_VER, CurrentSet->sFE_Version);
 			if (bResult3) { break; }
-			if (CurrentSet->bRunAbort) { return 0.0; }
+			if (CurrentSet->bRunAbort) { return 0.0; }	
+			if (bResult3 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+				return 0.0;
+			}
 		}
-		//if (bResult3 == FALSE)
-		//{
-		//	return 0.0;
-		//}
 		_Wait(200);
 		
 	}
@@ -2104,12 +2116,13 @@ double	_Version_Check()
 		for (i = 0; i < 3; i++) {
 			bResult4 = TVCommCtrl.Firmware_VersionCheck(MICOM_VER, CurrentSet->sMicom_Version);
 			if (bResult4) { break; }
-			if (CurrentSet->bRunAbort) { return 0.0; }
+			if (CurrentSet->bRunAbort) { return 0.0; }	
+			if (bResult4 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+				return 0.0;
+			}
 		}
-		//if (bResult4 == FALSE)
-		//{
-		//	return 0.0;
-		//}
 		_Wait(200);
 		
 	}
@@ -2120,12 +2133,13 @@ double	_Version_Check()
 			for (i = 0; i < 3; i++) {
 				bResult5 = TVCommCtrl.Firmware_VersionCheck(SUB_DSP_VER, CurrentSet->sSubDSP_Version);
 				if (bResult5) { break; }
-				if (CurrentSet->bRunAbort) { return 0.0; }
+				if (CurrentSet->bRunAbort) { return 0.0; }		
+				if (bResult5 == FALSE)
+				{
+					if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+					return 0.0;
+				}
 			}
-			//if (bResult5 == FALSE)
-			//{
-			//	return 0.0;
-			//}
 			_Wait(200);
 		
 	}
@@ -2136,12 +2150,13 @@ double	_Version_Check()
 		for (i = 0; i < 3; i++) {
 			bResult6 = TVCommCtrl.Firmware_VersionCheck(EQ_VER, CurrentSet->sEQ_Version);
 			if (bResult6) { break; }
-			if (CurrentSet->bRunAbort) { return 0.0; }
+			if (CurrentSet->bRunAbort) { return 0.0; }	
+			if (bResult6 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+				return 0.0;
+			}
 		}
-		//if (bResult6 == FALSE)
-		//{
-		//	return 0.0;
-		//}
 		_Wait(200);
 		
 	}
@@ -2153,11 +2168,13 @@ double	_Version_Check()
 			bResult7 = TVCommCtrl.Firmware_VersionCheck(MEQ_VER, CurrentSet->sMEQ_Version);
 			if (bResult7) { break; }
 			if (CurrentSet->bRunAbort) { return 0.0; }
+			if (bResult7 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+				return 0.0;
+			}
+
 		}
-		//if (bResult7 == FALSE)
-		//{
-		//	return 0.0;
-		//}
 		_Wait(200);	
 	}
 
@@ -2168,11 +2185,13 @@ double	_Version_Check()
 			bResult8 = TVCommCtrl.Firmware_VersionCheck(TOUCH_VER, CurrentSet->sTouch_Version);
 			if (bResult8) { break; }
 			if (CurrentSet->bRunAbort) { return 0.0; }
+			if (bResult8 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+				return 0.0;
+			}
+
 		}
-		//if (bResult8 == FALSE)
-		//{
-		//	return 0.0;
-		//}
 		_Wait(200);
 		
 	}
@@ -2186,11 +2205,13 @@ double	_Version_Check()
 			bResult9 = TVCommCtrl.Firmware_VersionCheck(DEMO_VER, CurrentSet->sDemo_Version);
 			if (bResult9) { break; }
 			if (CurrentSet->bRunAbort) { return 0.0; }
+			if (bResult9 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+				return 0.0;
+			}
+
 		}
-		//if (bResult9 == FALSE)
-		//{
-		//	return 0.0;
-		//}
 		_Wait(200);
 		
 	}
@@ -2202,11 +2223,13 @@ double	_Version_Check()
 			bResult10 = TVCommCtrl.Firmware_VersionCheck(DJ_SOUND_VER, CurrentSet->sDJSound_Version);
 			if (bResult10) { break; }
 			if (CurrentSet->bRunAbort) { return 0.0; }
+			if (bResult10 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+				return 0.0;
+			}
+
 		}
-		//if (bResult10 == FALSE)
-		//{
-		//	return 0.0;
-		//}
 		_Wait(200);
 		
 	}
@@ -2219,11 +2242,13 @@ double	_Version_Check()
 			bResult11 = TVCommCtrl.Firmware_VersionCheck(WIRELESS_TX_VER, CurrentSet->sWirelessTx_Version);
 			if (bResult11) { break; }
 			if (CurrentSet->bRunAbort) { return 0.0; }
+			if (bResult11 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+				return 0.0;
+			}	
 		}
-		//if (bResult11 == FALSE)
-		//{
-		//	return 0.0;
-		//}
+
 		_Wait(200);
 		
 	}
@@ -2234,28 +2259,92 @@ double	_Version_Check()
 		for (i = 0; i < 3; i++) {
 			bResult12 = TVCommCtrl.Firmware_VersionCheck(WIRELESS_RX_VER, CurrentSet->sWirelessRx_Version);
 			if (bResult12) { break; }
-			if (CurrentSet->bRunAbort) { return 0.0; }
+			if (CurrentSet->bRunAbort) { return 0.0; }	
+			if (bResult12 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+				return 0.0;
+			}
+
 		}
-		//if (bResult12 == FALSE)
-		//{
-		//	return 0.0;
-		//}
 		_Wait(200);		
 	}
+	if (CurrentSet->bVerChecked[WOOFER_RX_VER - 1] == 1)
+	{
+		for (i = 0; i < 3; i++) {
+			bResult13 = TVCommCtrl.Firmware_VersionCheck(WOOFER_RX_VER, CurrentSet->sWoofer_Rx_Version);
+			if (bResult13) { break; }
+			if (CurrentSet->bRunAbort) { return 0.0; }
+			if (bResult13 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+					return 0.0;
+			}
 
+		}
+		_Wait(200);
+	}
+	if (CurrentSet->bVerChecked[REAR_KIT_RX_VER - 1] == 1)
+	{
+		for (i = 0; i < 3; i++) {
+			bResult14 = TVCommCtrl.Firmware_VersionCheck(REAR_KIT_RX_VER, CurrentSet->sRear_Kit_Rx_Version);
+			if (bResult14) { break; }
+			if (CurrentSet->bRunAbort) { return 0.0; }
+			if (bResult14 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+					return 0.0;
+			}
+
+		}
+		_Wait(200);
+	}
+	if (CurrentSet->bVerChecked[REAR_SPK_L_VER - 1] == 1)
+	{
+		for (i = 0; i < 3; i++) {
+			bResult15 = TVCommCtrl.Firmware_VersionCheck(REAR_SPK_L_VER, CurrentSet->sRear_SPK_L_Version);
+			if (bResult15) { break; }
+			if (CurrentSet->bRunAbort) { return 0.0; }
+			if (bResult15 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+					return 0.0;
+			}
+
+		}
+		_Wait(200);
+	}
+	if (CurrentSet->bVerChecked[REAR_SPK_R_VER - 1] == 1)
+	{
+		for (i = 0; i < 3; i++) {
+			bResult16 = TVCommCtrl.Firmware_VersionCheck(REAR_SPK_R_VER, CurrentSet->sRear_SPK_R_Version);
+			if (bResult16) { break; }
+			if (CurrentSet->bRunAbort) { return 0.0; }
+			if (bResult16 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+					return 0.0;
+			}
+
+		}
+		_Wait(200);
+	}
+	
 	///////////////////////////////////////////////////
 	if (CurrentSet->bVerChecked[BT_VER - 1] == 1)
 	{
 		
 		for (i = 0; i < 3; i++) {
-			bResult13 = TVCommCtrl.Firmware_VersionCheck(BT_VER, CurrentSet->sBT_Version);
-			if (bResult13) { break; }
+			bResult17 = TVCommCtrl.Firmware_VersionCheck(BT_VER, CurrentSet->sBT_Version);
+			if (bResult17) { break; }
 			if (CurrentSet->bRunAbort) { return 0.0; }
+			if (bResult17 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+				return 0.0;
+			}
+
 		}
-		//if (bResult13 == FALSE)
-		//{
-		//	return 0.0;
-		//}
 		_Wait(200);
 		
 	}
@@ -2264,14 +2353,16 @@ double	_Version_Check()
 	if (CurrentSet->bVerChecked[HDMI_VER - 1] == 1)
 	{		
 		for (i = 0; i < 3; i++) {
-			bResult14 = TVCommCtrl.Firmware_VersionCheck(HDMI_VER, CurrentSet->sHDMI_Version);
-			if (bResult14) { break; }
+			bResult18 = TVCommCtrl.Firmware_VersionCheck(HDMI_VER, CurrentSet->sHDMI_Version);
+			if (bResult18) { break; }
 			if (CurrentSet->bRunAbort) { return 0.0; }
+
+			if (bResult18 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+				return 0.0;
+			}
 		}
-		//if (bResult14 == FALSE)
-		//{
-		//	return 0.0;
-		//}
 		_Wait(200);		
 	}
 
@@ -2280,20 +2371,22 @@ double	_Version_Check()
 	{
 		
 		for (i = 0; i < 3; i++) {
-			bResult15 = TVCommCtrl.Firmware_VersionCheck(CHECKSUM_VER, CurrentSet->sChecksum);
-			if (bResult15) { break; }
-			if (CurrentSet->bRunAbort) { return 0.0; }
+			bResult19 = TVCommCtrl.Firmware_VersionCheck(CHECKSUM_VER, CurrentSet->sChecksum);
+			if (bResult19) { break; }
+			if (CurrentSet->bRunAbort) { return 0.0; }	
+			if (bResult19 == FALSE)
+			{
+				if (TVCommCtrl.m_bCheckReadVersionCommError == 1)
+				return 0.0;
+			}
+
 		}
-		//if (bResult15 == FALSE)
-		//{
-		//	return 0.0;
-		//}
 		
 	}
 
 
 	if(bResult1 && bResult2 && bResult3 && bResult4 && bResult5 && bResult6 && bResult7 && bResult8 && bResult9 && bResult10
-		 && bResult11 && bResult12 && bResult13 && bResult14 && bResult15)
+		 && bResult11 && bResult12 && bResult13 && bResult14 && bResult15 && bResult16 && bResult17 && bResult18 && bResult19)
 	{
 		return 1.0;	
 	}
@@ -2341,11 +2434,15 @@ double _IRDataCheck()
 
 	return 1.0;
 }
-double _MAC_Add_CheckGmes()
+
+//#define _FLAG_LAN_MAC_READ     0
+//#define _FLAG_WIFI_MAC_READ     1
+//#define _FLAG_BT_MAC_READ     2
+double _MAC_Add_CheckGmes()//_Wifi_MAC_Read_Gmes
 {
 	CString sMac_Add;
 
-	if(!TVCommCtrl.MAC_AddressRead(sMac_Add, FALSE)){
+	if(!TVCommCtrl.MAC_AddressRead(sMac_Add, _FLAG_LAN_MAC_READ)){
 		CurrentSet->bSystemBreak = TRUE;
 		g_pView->m_szResultMsg2.Format("MAC Add Check(GMES): Read Error!");
 		return 0.0;
@@ -2362,11 +2459,149 @@ double _MAC_Add_CheckGmes()
 
 	return 1.0;
 }
+double _Wifi_MAC_Read_Gmes()//_Wifi_MAC_Read_Gmes
+{
+	CString sMac_Add;
+	CString sReadData;
+	double bResult = 0.0;
+
+	if (!TVCommCtrl.MAC_AddressRead(sMac_Add, _FLAG_WIFI_MAC_READ)) {
+		CurrentSet->bSystemBreak = TRUE;
+		g_pView->m_szResultMsg2.Format("MAC Add Check(GMES): Read Error!");
+		return 0.0;
+	}
+
+	sReadData = sMac_Add;
+	sReadData.MakeUpper();
+
+	if (sReadData.GetLength() < 6)
+	{
+		bResult = 0.0;
+	}
+	else if(sReadData.Find("00:00:00:00:00:00") != -1)
+	{
+		bResult = 0.0;
+	}
+	else if (sReadData.Find("FF:FF:FF:FF:FF:FF") != -1)
+	{
+		bResult = 0.0;
+	}
+	else if (sReadData.Find("00:10:18:26:08:E0") != -1)
+	{
+		bResult = 0.0;
+	}
+	else if (sReadData.Find("00:F0:FF:00:F0:FF") != -1)
+	{
+		bResult = 0.0;
+	}
+	else if (sReadData.Find("NOT") != -1)
+	{
+		bResult = 0.0;
+	}
+	else if ((sReadData.GetAt(2) == ':')
+		&& (sReadData.GetAt(5) == ':')
+		&& (sReadData.GetAt(8) == ':')
+		&& (sReadData.GetAt(11) == ':')
+		&& (sReadData.GetAt(14) == ':'))
+	{
+		CurrentSet->sWifiMacAdd = sMac_Add;
+		CurrentSet->bWifiMacAddCheck = TRUE;
+		bResult = 1.0;
+	}
+		
+	//if (!g_pView->Check_MacAddress(sMac_Add))
+	//{
+	//	CurrentSet->bSystemBreak = TRUE;
+	//	g_pView->m_szResultMsg2.Format("MAC Add Check(GMES): %s", gGmesCtrl.m_sErrorMsg);
+	//	return 0.0;
+	//}
+
+	return bResult;
+}
+double _BT_MAC_Read_Gmes()//_Wifi_MAC_Read_Gmes
+{
+	CString sMac_Add;
+	CString sReadData;
+	double bResult = 0.0;
+
+	if (!TVCommCtrl.MAC_AddressRead(sMac_Add, _FLAG_BT_MAC_READ)) {
+		CurrentSet->bSystemBreak = TRUE;
+		g_pView->m_szResultMsg2.Format("MAC Add Check(GMES): Read Error!");
+		return 0.0;
+	}
+
+	sReadData = sMac_Add;
+	sReadData.MakeUpper();
+
+	if (sReadData.GetLength() < 6)
+	{
+		bResult = 0.0;
+	}
+	else if (sReadData.Find("00:00:00:00:00:00") != -1)
+	{
+		bResult = 0.0;
+	}
+	else if (sReadData.Find("FF:FF:FF:FF:FF:FF") != -1)
+	{
+		bResult = 0.0;
+	}
+	else if (sReadData.Find("00:10:18:26:08:E0") != -1)
+	{
+		bResult = 0.0;
+	}
+	else if (sReadData.Find("00:F0:FF:00:F0:FF") != -1)
+	{
+		bResult = 0.0;
+	}
+	else if (sReadData.Find("NOT") != -1)
+	{
+		bResult = 0.0;
+	}
+	else if ((sReadData.GetAt(2) == ':')
+		&& (sReadData.GetAt(5) == ':')
+		&& (sReadData.GetAt(8) == ':')
+		&& (sReadData.GetAt(11) == ':')
+		&& (sReadData.GetAt(14) == ':'))
+	{
+		CurrentSet->sBTMacAdd = sMac_Add;
+		CurrentSet->bBTMacAddCheck = TRUE;
+		bResult = 1.0;
+	}
+		
+	//if (!g_pView->Check_MacAddress(sMac_Add))
+	//{
+	//	CurrentSet->bSystemBreak = TRUE;
+	//	g_pView->m_szResultMsg2.Format("MAC Add Check(GMES): %s", gGmesCtrl.m_sErrorMsg);
+	//	return 0.0;
+	//}
+
+	return bResult;
+}
+
 double _Mic_Diff_Level_Check()
 {
 	if(!TVCommCtrl.Check_MicDiffLevel()){
 		return 0.0;
 	}
 	
+	return 1.0;
+}
+//_T("sm_di_check"), _SM_DI_Check, MEAS_BOOL,
+//_T("sm_vi_check"), _SM_VI_Check, MEAS_BOOL,
+double _SM_DI_Check()
+{
+	if (!gSMDIO_Ctrl.CheckTargetInput()) {
+		return 0.0;
+	}
+
+	return 1.0;
+}
+
+double _SM_VI_Check()
+{
+	if (!gSMDIO_Ctrl.CheckTargetVoltage()) {
+		return 0.0;
+	}
+
 	return 1.0;
 }

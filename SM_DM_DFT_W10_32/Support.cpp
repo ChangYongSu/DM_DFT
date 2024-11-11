@@ -20,6 +20,7 @@
 #include "SoundCard.h"
 #include "CSpreadSheet.h"
 #include "HdmiGenerator.h"
+#include "SMDIO_Jig_Ctrl.h"
 #include "thermometer.h"
 
 #include "Gmes.h"
@@ -459,6 +460,23 @@ BOOL CreateModelIniFile(CString sModelIni)
 	 strTemp.Replace(" ", "~");
 	 m_Ini.SetProfileString(VERSION_CHECK_S, "Wireless Rx Version", strTemp);
 
+	 strTemp = CurrentSet->sWoofer_Rx_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "Woofer Rx Version", strTemp);
+
+	 strTemp = CurrentSet->sRear_Kit_Rx_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "sRear Kit Rx Version", strTemp);
+
+	 strTemp = CurrentSet->sRear_SPK_L_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "Rear SPK L Version", strTemp);
+
+	 strTemp = CurrentSet->sRear_SPK_R_Version;
+	 strTemp.Replace(" ", "~");
+	 m_Ini.SetProfileString(VERSION_CHECK_S, "Rear SPK R Version", strTemp);
+
+
 	 strTemp = CurrentSet->sBT_Version;
 	 strTemp.Replace(" ", "~");
 	 m_Ini.SetProfileString(VERSION_CHECK_S, "BT Version", strTemp);
@@ -489,7 +507,7 @@ BOOL CreateModelIniFile(CString sModelIni)
 #endif
 	CString sTemp;
 	sTemp = "";
-	for (int i = 0; i < 15; i++)
+	for (int i = 0; i < 19; i++)
 	{
 		if (CurrentSet->bVerChecked[i] == 1)
 		{
@@ -520,6 +538,7 @@ BOOL CreateModelIniFile(CString sModelIni)
 	//============
 	m_Ini.SetProfileInt(REMOCON_CUSTOM_S, "Remocon Custom Code",CurrentSet->nRemoteCustomCode);
 	m_Ini.SetProfileInt(REMOCON_CUSTOM_S, "Remocon Type",CurrentSet->nRemoteType);
+	m_Ini.SetProfileInt(GENERAL_S, "Scan TWO LABEL", CurrentSet->b2PCBA_WID);
 
 	return TRUE;
 }
@@ -679,6 +698,22 @@ BOOL SaveModelIniFile(CString sIniPath)
 	strTemp.Replace(" ", "~");
 	m_Ini.SetProfileString(VERSION_CHECK_S, "Wireless Rx Version", strTemp);
 
+	strTemp = CurrentSet->sWoofer_Rx_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "Woofer Rx Version", strTemp);
+
+	strTemp = CurrentSet->sRear_Kit_Rx_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "sRear Kit Rx Version", strTemp);
+
+	strTemp = CurrentSet->sRear_SPK_L_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "Rear SPK L Version", strTemp);
+
+	strTemp = CurrentSet->sRear_SPK_R_Version;
+	strTemp.Replace(" ", "~");
+	m_Ini.SetProfileString(VERSION_CHECK_S, "Rear SPK R Version", strTemp);
+
 	strTemp = CurrentSet->sBT_Version;
 	strTemp.Replace(" ", "~");
 	m_Ini.SetProfileString(VERSION_CHECK_S, "BT Version", strTemp);
@@ -709,7 +744,7 @@ BOOL SaveModelIniFile(CString sIniPath)
 #endif
 	CString sTemp;
 	sTemp = "";
-	for (int i = 0; i < 15; i++)
+	for (int i = 0; i < 19; i++)
 	{
 		if (CurrentSet->bVerChecked[i] == 1)
 		{
@@ -740,7 +775,8 @@ BOOL SaveModelIniFile(CString sIniPath)
 	//============
 	m_Ini.SetProfileInt(REMOCON_CUSTOM_S, "Remocon Custom Code",CurrentSet->nRemoteCustomCode);
 	m_Ini.SetProfileInt(REMOCON_CUSTOM_S, "Remocon Type",CurrentSet->nRemoteType);
-	
+	m_Ini.SetProfileInt(GENERAL_S, "Scan TWO LABEL", CurrentSet->b2PCBA_WID);
+
 	return TRUE;
 }
 
@@ -931,6 +967,20 @@ BOOL OpenModelIniFile(CString sIniPath)
 	CurrentSet->sWirelessTx_Version.Replace("~", " ");
 	CurrentSet->sWirelessRx_Version = m_Ini.GetProfileString(VERSION_CHECK_S, "Wireless Rx Version");
 	CurrentSet->sWirelessRx_Version.Replace("~", " ");
+
+
+	CurrentSet->sWoofer_Rx_Version = m_Ini.GetProfileString(VERSION_CHECK_S, "Woofer Rx Version");
+	CurrentSet->sWoofer_Rx_Version.Replace("~", " ");
+
+	CurrentSet->sRear_Kit_Rx_Version = m_Ini.GetProfileString(VERSION_CHECK_S, "sRear Kit Rx Version");
+	CurrentSet->sRear_Kit_Rx_Version.Replace("~", " ");
+
+	CurrentSet->sRear_SPK_L_Version = m_Ini.GetProfileString(VERSION_CHECK_S, "Rear SPK L Version");
+	CurrentSet->sRear_SPK_L_Version.Replace("~", " ");
+
+	CurrentSet->sRear_SPK_R_Version = m_Ini.GetProfileString(VERSION_CHECK_S, "Rear SPK R Version");
+	CurrentSet->sRear_SPK_R_Version.Replace("~", " ");
+	
 	CurrentSet->sBT_Version = m_Ini.GetProfileString(VERSION_CHECK_S, "BT Version");
 	CurrentSet->sBT_Version.Replace("~", " ");
 	CurrentSet->sHDMI_Version = m_Ini.GetProfileString(VERSION_CHECK_S, "HDMI Version");
@@ -969,6 +1019,11 @@ BOOL OpenModelIniFile(CString sIniPath)
 	if(CurrentSet->sDJSound_Version	   == "NULL") CurrentSet->sDJSound_Version    = "";
 	if(CurrentSet->sWirelessTx_Version == "NULL") CurrentSet->sWirelessTx_Version = "";
 	if (CurrentSet->sWirelessRx_Version == "NULL") CurrentSet->sWirelessRx_Version = "";
+	if (CurrentSet->sWoofer_Rx_Version		 == "NULL") CurrentSet->sWoofer_Rx_Version = "";
+	if (CurrentSet->sRear_Kit_Rx_Version	 == "NULL") CurrentSet->sRear_Kit_Rx_Version = "";
+	if (CurrentSet->sRear_SPK_L_Version		 == "NULL") CurrentSet->sRear_SPK_L_Version = "";
+	if (CurrentSet->sRear_SPK_R_Version		 == "NULL") CurrentSet->sRear_SPK_R_Version = "";
+
 	if (CurrentSet->sBT_Version == "NULL") CurrentSet->sBT_Version = "";
 	if (CurrentSet->sHDMI_Version == "NULL") CurrentSet->sHDMI_Version = "";
 	if(CurrentSet->sChecksum		   == "NULL") CurrentSet->sChecksum	          = "";
@@ -978,7 +1033,7 @@ BOOL OpenModelIniFile(CString sIniPath)
 	if (sTemp == "NULL")
 	{
 		
-		for (int i = 0; i < 15; i++)
+		for (int i = 0; i < 19; i++)
 		{
 			CurrentSet->bVerChecked[i] = 1;
 		}
@@ -995,15 +1050,19 @@ BOOL OpenModelIniFile(CString sIniPath)
 		if (CurrentSet->sDJSound_Version == "")		CurrentSet->bVerChecked[9] = 0;
 		if (CurrentSet->sWirelessTx_Version == "")	CurrentSet->bVerChecked[10] = 0;
 		if (CurrentSet->sWirelessRx_Version == "")	CurrentSet->bVerChecked[11] = 0;
-		if (CurrentSet->sBT_Version == "")			CurrentSet->bVerChecked[12] = 0;
-		if (CurrentSet->sHDMI_Version == "")		CurrentSet->bVerChecked[13] = 0;
-		if (CurrentSet->sChecksum == "")			CurrentSet->bVerChecked[14] = 0;
-
+		if (CurrentSet->sWoofer_Rx_Version  == "")	CurrentSet->bVerChecked[12] = 0;
+		if (CurrentSet->sRear_Kit_Rx_Version == "")	CurrentSet->bVerChecked[13] = 0;
+		if (CurrentSet->sRear_SPK_L_Version == "")	CurrentSet->bVerChecked[14] = 0;
+		if (CurrentSet->sRear_SPK_R_Version == "")	CurrentSet->bVerChecked[15] = 0;
+		if (CurrentSet->sBT_Version == "")			CurrentSet->bVerChecked[16] = 0;
+		if (CurrentSet->sHDMI_Version == "")		CurrentSet->bVerChecked[17] = 0;
+		if (CurrentSet->sChecksum == "")			CurrentSet->bVerChecked[18] = 0;
+		
 		
 	}
 	else
 	{
-		for (int i = 0; i < 15; i++)
+		for (int i = 0; i < 19; i++)
 		{
 			if (sTemp.GetLength() <= i)
 			{
@@ -1041,7 +1100,7 @@ BOOL OpenModelIniFile(CString sIniPath)
 	{
 		CurrentSet->nRemoteType = 0;
 	}
-
+	CurrentSet->b2PCBA_WID = m_Ini.GetProfileInt(GENERAL_S, "Scan TWO LABEL");
 	return TRUE;
 }
 
@@ -3125,6 +3184,30 @@ BOOL InitThermometer(CString sComPort, DWORD wBaudRate)
 
 	return TRUE;
 }
+
+//godtech 20231225
+BOOL InitSM_DIO(CString sComPort, DWORD wBaudRate)
+{
+	if (gSMDIO_Ctrl.m_bPortOpen)
+	{
+		gSMDIO_Ctrl.CloseComm(); _Wait(100);
+	}
+	
+	if (gSMDIO_Ctrl.CreateComm(sComPort, wBaudRate) == FALSE)
+	{
+		gSMDIO_Ctrl.CloseComm(); _Wait(100);
+		if (!gSMDIO_Ctrl.CreateComm(sComPort, wBaudRate) == FALSE)
+		{
+			CString szErrMsg;
+			szErrMsg.Format("Failed to open SM DIO COM port (%s)", CurrentSet->sSM_DIOComPort);
+			AfxMessageBox(szErrMsg);
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
 
 BOOL InitTVCommPort(CString sComPort, DWORD wBaudRate)
 {

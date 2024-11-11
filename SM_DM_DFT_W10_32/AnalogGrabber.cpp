@@ -99,7 +99,11 @@ END_MESSAGE_MAP()
 BOOL CAnalogGrabber::OnPciCardOpen() 
 {
 	MIL_ID MReV;
-	
+	if (CurrentSet->bNoVideoCapture == 1)
+	{
+		m_bGrabberInit = FALSE;
+		return FALSE;
+	}
 	/* Allocate defaults. */
 //	MappAllocDefault(M_SETUP, &m_MilApplication, &m_MilSystem,
 //	                           M_NULL, &m_MilDigitizer, &m_MilImage);
@@ -308,6 +312,12 @@ void CAnalogGrabber::SetVideoSourceType(int nVideoSourceType)
 {
 	long SizeX = 0, 
 		 SizeY = 0;
+
+	if (CurrentSet->bNoVideoCapture == 1)
+	{
+		m_bGrabberInit = FALSE;
+	}
+
 
 	if(m_nVideoSourceType == nVideoSourceType) return;
 	if(m_bGrabberInit == FALSE) return;

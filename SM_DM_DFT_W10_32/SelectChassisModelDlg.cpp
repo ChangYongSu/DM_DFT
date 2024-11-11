@@ -68,6 +68,7 @@ BEGIN_MESSAGE_MAP(CSelectChassisModelDlg, CDialog)
 	ON_NOTIFY(NM_CLICK, IDC_LIST_CHASSIS, &CSelectChassisModelDlg::OnNMClickListChassis)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST_CHASSIS, &CSelectChassisModelDlg::OnNMCustomdrawListChassis)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST_MODEL, &CSelectChassisModelDlg::OnNMCustomdrawListModel)
+	ON_BN_CLICKED(IDOK, &CSelectChassisModelDlg::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1121,4 +1122,11 @@ void CSelectChassisModelDlg::OnNMCustomdrawListModel(NMHDR *pNMHDR, LRESULT *pRe
 	}
 
 	*pResult = 0;
+}
+
+
+void CSelectChassisModelDlg::OnBnClickedOk()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CDialog::OnOK();
 }

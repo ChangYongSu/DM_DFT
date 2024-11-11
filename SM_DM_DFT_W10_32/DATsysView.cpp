@@ -66,6 +66,7 @@
 
 
 #include "CSelectGenerateModel.h"
+#include "SMDIO_Jig_Ctrl.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -89,6 +90,7 @@ CColorStaticST	ctrlStepTarget_A;
 CColorStaticST  ctrlStepMeasur_A;
 
 CColorStaticST  ctrlWipIDLabel;
+CColorStaticST  ctrlWipIDLabel2;
 
 CProgressCtrlX	ctrlTestProgress;
 
@@ -141,10 +143,13 @@ CIniAccess		m_Ini;				// IniAccess Class
 
 
 UINT			nDefectCurSel;
-CEdit			ctrlWipIdEdit;			
-CEdit			ctrlSuffixEdit;			
+CEdit			ctrlWipIdEdit;
+CEdit			ctrlWipIdEdit2;
+CEdit			ctrlSuffixEdit;
 CString			m_strWipId;			//Wip ID
+CString			m_strWipId2;
 CTime			m_tStart;			//Test Start Time
+int				m_nInsertSel;
 
 //+add kwmoon 080514
 //CSoundCard		g_SoundCard;
@@ -302,6 +307,7 @@ ON_NOTIFY(NM_CLICK, IDC_LIST_MAIN_PROCESS, &CDATsysView::OnNMClickListMainProces
 ON_WM_LBUTTONDOWN()
 ON_NOTIFY(NM_DBLCLK, IDC_LIST_MAIN_PROCESS, &CDATsysView::OnNMDblclkListMainProcess)
 //ON_CBN_EDITCHANGE(IDC_COMBO_SOUND_L, &CDATsysView::OnCbnEditchangeComboSoundL)
+ON_STN_CLICKED(IDC_STATIC_WIP_ID_LABEL, &CDATsysView::OnStnClickedStaticWipIdLabel)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -548,9 +554,15 @@ void CDATsysView::InitSubClassItem()
 	ctrlStepMeasur_A.SetBkColor(RGB(189,231,97)); 
 	ctrlStepMeasur_A.SetTextColor(RGB(0,0,0));  
 
-	ctrlWipIDLabel.SubclassDlgItem(IDC_STATIC_WIP_ID_LABEL,this);
-	ctrlWipIDLabel.SetBkColor(RGB(195,231,197));
-	ctrlWipIDLabel.SetTextColor(RGB(0,0,0));
+	ctrlWipIDLabel.SubclassDlgItem(IDC_STATIC_WIP_ID_LABEL, this);
+	ctrlWipIDLabel.SetBkColor(RGB(195, 231, 197));
+	ctrlWipIDLabel.SetTextColor(RGB(0, 0, 0));
+
+	ctrlWipIDLabel2.SubclassDlgItem(IDC_STATIC_WIP_ID_LABEL2, this);
+	ctrlWipIDLabel2.SetBkColor(RGB(195, 231, 197));
+	ctrlWipIDLabel2.SetTextColor(RGB(0, 0, 0));
+
+	
 
 	ctrlStepTarget_V.SetWindowText(_T(""));
 	ctrlStepMeasur_V.SetWindowText(_T(""));
@@ -560,6 +572,40 @@ void CDATsysView::InitSubClassItem()
 	ctrlWipIdEdit.SubclassDlgItem(IDC_EDIT_WIPID, this);
 	ctrlWipIdEdit.SetWindowText(_T(""));
 	m_strWipId = _T("");
+	m_nInsertSel = 0;
+
+	ctrlWipIdEdit2.SubclassDlgItem(IDC_EDIT_WIPID2, this);
+	ctrlWipIdEdit2.SetWindowText(_T(""));
+	m_strWipId2 = _T("");
+
+
+	if (CurrentSet->bUseScanner) {
+		ctrlWipIdEdit.SetReadOnly(TRUE);
+		ctrlWipIdEdit2.SetReadOnly(TRUE);
+
+		//InitScanner(CurrentSet->sScannerComPort, CurrentSet->wScannerBaudRate);
+		//CurrentSet->bUseScanner = TRUE;
+		ctrlWipIDLabel.SetBkColor(0x00FF00);
+		if (CurrentSet->b2PCBA_WID == 1)
+			ctrlWipIDLabel2.SetBkColor(0x00FF00);
+		else
+			ctrlWipIDLabel2.SetBkColor(0x808080);
+
+	}
+	else {
+		ctrlWipIdEdit.SetReadOnly(FALSE);
+		if (CurrentSet->b2PCBA_WID == 1)
+			ctrlWipIdEdit2.SetReadOnly(FALSE);
+		else
+			ctrlWipIdEdit2.SetReadOnly(TRUE);
+
+		CurrentSet->bUseScanner = FALSE;
+		ctrlWipIDLabel.SetBkColor(0x808080);
+		ctrlWipIDLabel2.SetBkColor(0x808080);
+	}
+
+
+
 
 	ctrlSuffixEdit.SubclassDlgItem(IDC_EDIT_SUFFIX, this);
 	ctrlSuffixEdit.SetWindowText(_T(""));
@@ -783,6 +829,8 @@ void CDATsysView::OnInitialUpdate()
 
 	ctrlSuffixEdit.SetReadOnly(TRUE);
 	ctrlWipIdEdit.SetFocus();
+	
+	//ctrlWipIdEdit2.SetFocus();
 
 	//+add kwmoon 080618
 	m_hGrabThreadKillEvent = ::CreateEvent(NULL,false,false,NULL);
@@ -1019,6 +1067,8 @@ void CDATsysView::SetFont()
 //	m_stcTime.SetFont(&m_CustomFont);
 //	ctrlTestSubStep.SetFont(&m_CustomFont);
 	ctrlWipIdEdit.SetFont(&m_CustomFont);
+	ctrlWipIdEdit2.SetFont(&m_CustomFont);
+
 	ctrlSuffixEdit.SetFont(&m_CustomFont);
 //	m_stcStatus.SetFont(&m_StatusWindowFont);
 //	m_stcStatus.SetFont(&m_CustomFont);
@@ -1488,6 +1538,10 @@ void CDATsysView::OnModelOpen()
 			CreateFullPath(CurrentSet->sMaskFolder);
 		}
 
+
+		CString  lsOldnPort = CurrentSet->sTVComPort;
+		int lOldnBaud = CurrentSet->wTVBaudRate;
+		int lOldnParity = CurrentSet->nTVParity;
 		//=====================
 		// Open Model.ini File 
 		//=====================
@@ -1707,23 +1761,31 @@ void CDATsysView::OnModelOpen()
 		InsertStepData2Grid(CurrentSet->nDisplayType);
 		
 		//+add psh 080701
-		if(TVCommCtrl.m_bPortOpen)
-		{
-			TVCommCtrl.PortClose();
-		}
 
-		if(TVCommCtrl.Create(CurrentSet->sTVComPort, CurrentSet->wTVBaudRate) == FALSE)
+		if ((TVCommCtrl.m_bPortOpen != 1)
+			|| (lsOldnPort != CurrentSet->sTVComPort)
+			|| (lOldnBaud != CurrentSet->wTVBaudRate)
+			|| (lOldnParity != CurrentSet->nTVParity))
 		{
-			TVCommCtrl.PortClose();
-			TVCommCtrl.Create(CurrentSet->sTVComPort, CurrentSet->wTVBaudRate);
-			if(TVCommCtrl.m_bPortOpen == FALSE)
+			if (TVCommCtrl.m_bPortOpen)
 			{
-				CString szErrMsg;
-				szErrMsg.Format("Failed to open COM port (%s)",CurrentSet->sTVComPort);
-				AfxMessageBox(szErrMsg);
+				TVCommCtrl.PortClose();
+				_Wait(150);
 			}
+
+			if (TVCommCtrl.Create(CurrentSet->sTVComPort, CurrentSet->wTVBaudRate) == FALSE)
+			{
+				TVCommCtrl.PortClose();
+				TVCommCtrl.Create(CurrentSet->sTVComPort, CurrentSet->wTVBaudRate);
+				if (TVCommCtrl.m_bPortOpen == FALSE)
+				{
+					CString szErrMsg;
+					szErrMsg.Format("Failed to open COM port (%s)", CurrentSet->sTVComPort);
+					AfxMessageBox(szErrMsg);
+				}
+			}
+			//-
 		}
-		//-
 	}
 
 	//+add PSH 090615
@@ -1758,335 +1820,9 @@ LRESULT  CDATsysView::OnChangeModelOpen(WPARAM wParam, LPARAM lParam)
 	}
 	return 0;
 	////////////////////////////////////////////////////////////////
-#if 0
-	CWinApp* pApp = AfxGetApp();
 
-	int		nNoModel = 0;
-	CString sTmp = _T("");
-	CString sMsg = _T("");
-	BOOL bFlag;
-	BOOL bFindFlag;
-	BOOL bGrabFlag;
-	POSITION	Pos = NULL;
-	CModelData* pModelData = NULL;
-	//	UINT nVal1;//
-
-	if (OpenModelListFile(CurrentSet->sModelListPath, nNoModel, g_Divisions) == FALSE) return 0;
-
-	//+add PSH 090507
-	bFlag = m_SignalEnable;//g_pView->wIn_Flag;
-	//090615
-	AudioMeasureStop();
-	//-
-	StopGrabThread();
-
-	Sleep(100);
-	//BP250 - N.DJPNLLM
-	CString str;
-	CString lFindName;
-	CString lFoundedName;
-	lFindName = CurrentSet->sModelSuffixName;
-	//lFindName.Replace(".", "_");
-	str = "Check S/N is";
-	str += lFindName;
-	str += " MODEL. \r\n \r\n";
-	str += "  Do You Change MODEL ?";
-
-	//	if(IDOK == MessageWindow(str))
-	if (IDYES == MessageBox(str, "New Model Detected", MB_YESNO))
-	{
-
-		//if (dlg.DoModal() == IDOK)
-		Pos = CurrentSet->ModelList.GetHeadPosition();
-		bFindFlag = 0;
-		while (Pos)
-		{
-			pModelData = CurrentSet->ModelList.GetNext(Pos);
-
-			if (pModelData->m_szChassisName != _T(""))
-			{
-				if (pModelData->m_szModelName.Find(lFindName) >= 0)
-				{
-					//lFindName = pModelData->m_szModelName;
-					lFoundedName = pModelData->m_szModelName;
-					bFindFlag = 1;
-					break;
-				}
-			}
-		}
-	}
-	else
-	{
-		return 0;
-	}
-
-	//CurrentSet->sModelSuffixName;
-	if (bFindFlag == 1)
-	{
-		//+move kwmoon 080818
-		CurrentSet->sSeqPath = CurrentSet->sServerFolder + pModelData->m_szSeqFilePath;
-		CurrentSet->sModelIni = CurrentSet->sModelInfoFolder + pModelData->m_szModelInfoFilePath;
-		CurrentSet->sModelFolder
-			= CurrentSet->sServerFolder
-			+ pModelData->m_szModelInfoFilePath.Left(pModelData->m_szModelInfoFilePath.ReverseFind('\\'));
-
-
-		CurrentSet->sRefFolder = CurrentSet->sRefRootFolder + pModelData->m_szRefImgFolder;// .m_szRefImgFolder;
-		CurrentSet->sMaskFolder = CurrentSet->sRefFolder + "\\Mask";
-
-		CurrentSet->sChassisName = pModelData->m_szChassisName;// .m_sSelChassis;
-		CurrentSet->sModelName = pModelData->m_szModelName;;
-
-		//add PSH 20091019
-		if (!FileExists(CurrentSet->sRefFolder)) {
-			CreateFullPath(CurrentSet->sRefFolder);
-			CreateFullPath(CurrentSet->sMaskFolder);
-		}
-
-		//=====================
-		// Open Model.ini File 
-		//=====================
-		if (FileExists(CurrentSet->sModelIni))
-		{
-			OpenModelIniFile(CurrentSet->sModelIni);
-
-			AvSwitchBoxCtrl.SetVideoOutType(CurrentSet->nAnalogType);
-
-			bGrabFlag = g_pView->m_bGrabThreadRunning;
-			StopGrabThread();
-			Sleep(500);
-			AnalogControl.SetVideoSourceType(CurrentSet->nAnalogType);
-			Sleep(500);
-			if (bGrabFlag) StartGrabThread();
-			SetGrabInfo(&g_GrabImage);
-		}
-		else
-		{
-			//	sMsg.Format("Failed to load file.\n[%s]",CurrentSet->sModelIni);
-			//	AfxMessageBox(sMsg);
-			CModelInfoCreate dlg;
-
-			dlg.m_sModelInfo_FileName = CurrentSet->sModelIni;
-			dlg.DoModal();
-		}
-
-		// position change PSH 080911
-		g_pView->SaveRegistrySetting();
-
-		//====================
-		// Open Sequence File 
-		//====================
-		if (FileExists(CurrentSet->sSeqPath))
-		{
-			if (Prescan(CurrentSet->sSeqPath) == TRUE)
-			{
-				CurrentSet->bCompiled = TRUE;
-				CurrentSet->lTime = GetModifyTime(CurrentSet->sSeqPath);
-			}
-			else
-			{
-				DeleteStepList();
-				CurrentSet->bCompiled = FALSE;
-
-				//+del kwmoon 081024
-				// change PSH 080603
-			//	CurrentSet->sSeqPath = dlg.m_strSeqFilePath;
-				CurrentSet->lTime = 0;
-			}
-		}
-		else
-		{
-			sMsg.Format("Failed to load file.\n[%s]", CurrentSet->sSeqPath);
-			AfxMessageBox(sMsg);
-
-			DeleteStepList();
-			CurrentSet->bCompiled = FALSE;
-			CurrentSet->sSeqPath = _T("");
-			CurrentSet->lTime = 0;
-		}
-
-
-		//==========================
-		// Open Test Parameter File 
-		//==========================
-		if (CurrentSet->sTestParamIni.IsEmpty())
-		{
-			CurrentSet->sTestParamIni = m_szExePath + "\\TestParam.Ini";
-		}
-
-		if (FileExists(CurrentSet->sTestParamIni))
-		{
-			OpenTestParamIniFile(CurrentSet->sTestParamIni);
-		}
-		else
-		{
-			sMsg.Format("Failed to load file.\n[%s]", CurrentSet->sTestParamIni);
-			AfxMessageBox(sMsg);
-		}
-
-		//===================
-		// Open Pattern File 
-		//===================
-		if (CurrentSet->sPatternTitle.IsEmpty())
-		{
-			CurrentSet->sPatternTitle = m_szExePath + "\\Pattern.pat";
-		}
-
-		if (FileExists(CurrentSet->sPatternTitle))
-		{
-			OpenPatternFile(CurrentSet->sPatternTitle);
-		}
-		else
-		{
-			sMsg.Format("Failed to load file.\n[%s]", CurrentSet->sPatternTitle);
-			AfxMessageBox(sMsg);
-		}
-
-		//===================
-		// Open Remocon File 
-		//===================
-/*		if(CurrentSet->sRemoconTitle.IsEmpty())
-		{
-			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_REMOTE.rmt";
-		}
-*/
-		switch (CurrentSet->nRemoteCustomCode)
-		{
-		case REMOCON_HT:
-			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_HT_REMOTE.rmt";
-			//	nVal1 = 0x2C;
-			break;
-
-		case REMOCON_MINI:
-			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_MINI_REMOTE.rmt";
-			//	nVal1 = 0x10;
-			break;
-
-		case REMOCON_BD:
-			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_BD_REMOTE.rmt";
-			break;
-
-		case REMOCON_PN:
-			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_PN_REMOTE.rmt";
-			break;
-
-		case REMOCON_LO:
-			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_LO_REMOTE.rmt";
-			break;
-
-		case REMOCON_NA:
-			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_NA_REMOTE.rmt";
-			break;
-
-		case REMOCON_SO:
-			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_SO_REMOTE.rmt";
-			break;
-
-		case REMOCON_CM:
-			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_LSC_CM_REMOTE.rmt";
-			break;
-
-		case REMOCON_GS:
-			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_LSC_GS_REMOTE.rmt";
-			break;
-
-		case REMOCON_TB:
-			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_LSC_TB_REMOTE.rmt";
-			break;
-
-		case REMOCON_SH:
-			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_LSH_REMOTE.rmt";
-			break;
-
-		case REMOCON_SI:
-			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_LSI_REMOTE.rmt";
-			break;
-
-		case REMOCON_JV:
-			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_JVC_REMOTE.rmt";
-			break;
-
-		default:
-			CurrentSet->sRemoconTitle = m_szExePath + "\\DM_DFT_HT_REMOTE.rmt";
-			//	nVal1 = 0x2C;
-			break;
-		}
-
-
-		if (FileExists(CurrentSet->sRemoconTitle))
-		{
-			OpenRemoteFile(CurrentSet->sRemoconTitle);
-			//	AvSwitchBoxCtrl.SetAvSwitch(SET_CUSTOM_CODE, MAX_AVSWITCH_WAIT_DELAY,  nVal1, 0);
-		}
-		else
-		{
-			sMsg.Format("Failed to load file.\n[%s]", CurrentSet->sRemoconTitle);
-			AfxMessageBox(sMsg);
-		}
-
-		//AvSwitchBoxCtrl.SetAvSwitch(REMOTE_TYPE_SEL, MAX_AVSWITCH_WAIT_DELAY,  CurrentSet->nRemoteType, 0);
-
-		//====================
-		// Open Template File 
-		//====================
-		if (!CurrentSet->sFullSeqPath.IsEmpty())
-		{
-			if (FileExists(CurrentSet->sFullSeqPath))
-			{
-				OpenFullSeq(CurrentSet->sFullSeqPath);
-			}
-		}
-
-		//		UpdateInfo(MODEL, CurrentSet->sModelFolder);
-		UpdateInfo(MODEL, CurrentSet->sModelName);
-		UpdateInfo(CHASSIS, CurrentSet->sChassisName);
-		UpdateInfo(REF, CurrentSet->sRefFolder);
-		UpdateInfo(SEQ, CurrentSet->sSeqPath);
-
-		ctrlSuffixEdit.SetWindowText(CurrentSet->sModelSuffixName);
-
-		/*
-				UpdateInfo(TOOL_OPTION1,CurrentSet->sToolOption1);
-				UpdateInfo(TOOL_OPTION2,CurrentSet->sToolOption2);
-				UpdateInfo(TOOL_OPTION3,CurrentSet->sToolOption3);
-				UpdateInfo(TOOL_OPTION4,CurrentSet->sToolOption4);
-				UpdateInfo(TOOL_OPTION5,CurrentSet->sToolOption5);
-				UpdateInfo(AREA_OPTION1,CurrentSet->sAreaOption1);
-				UpdateInfo(CPU_VERSION,CurrentSet->sCPUVersion);
-				UpdateInfo(MICOM_VERSION,CurrentSet->sMicomVersion);
-				UpdateInfo(USB_VERSION,CurrentSet->sUSBVersion);
-		*/
-
-		UpdateVersionInfo();
-
-		InsertStepData2Grid(CurrentSet->nDisplayType);
-
-		//+add psh 080701
-		if (TVCommCtrl.m_bPortOpen)
-		{
-			TVCommCtrl.PortClose();
-		}
-
-		if (TVCommCtrl.Create(CurrentSet->sTVComPort, CurrentSet->wTVBaudRate) == FALSE)
-		{
-			TVCommCtrl.PortClose();
-			TVCommCtrl.Create(CurrentSet->sTVComPort, CurrentSet->wTVBaudRate);
-			if (TVCommCtrl.m_bPortOpen == FALSE)
-			{
-				CString szErrMsg;
-				szErrMsg.Format("Failed to open COM port (%s)", CurrentSet->sTVComPort);
-				AfxMessageBox(szErrMsg);
-			}
-		}
-		//-
-	}
-
-	//+add PSH 090615
-	StartGrabThread();
-	//	if(bFlag) SetTimer(2, 2000, NULL);
-	return 0;
-#endif
 }
+
 
 
 
@@ -2178,9 +1914,15 @@ int  CDATsysView::ChangeModelCheckOpen(CString lNewModelName)
 
 		//=====================
 		// Open Model.ini File 
+
+		CString  lsOldnPort = CurrentSet->sTVComPort;
+		int lOldnBaud = CurrentSet->wTVBaudRate;
+		int lOldnParity = CurrentSet->nTVParity;
+
 		//=====================
 		if (FileExists(CurrentSet->sModelIni))
 		{
+
 			OpenModelIniFile(CurrentSet->sModelIni);
 
 			AvSwitchBoxCtrl.SetVideoOutType(CurrentSet->nAnalogType);
@@ -2394,23 +2136,33 @@ int  CDATsysView::ChangeModelCheckOpen(CString lNewModelName)
 
 		InsertStepData2Grid(CurrentSet->nDisplayType);
 
-		//+add psh 080701
-		if (TVCommCtrl.m_bPortOpen)
-		{
-			TVCommCtrl.PortClose();
-		}
 
-		if (TVCommCtrl.Create(CurrentSet->sTVComPort, CurrentSet->wTVBaudRate) == FALSE)
+		if ((TVCommCtrl.m_bPortOpen != 1) 
+			|| (lsOldnPort != CurrentSet->sTVComPort) 
+			|| (lOldnBaud != CurrentSet->wTVBaudRate)
+			|| (lOldnParity != CurrentSet->nTVParity))
 		{
-			TVCommCtrl.PortClose();
-			TVCommCtrl.Create(CurrentSet->sTVComPort, CurrentSet->wTVBaudRate);
-			if (TVCommCtrl.m_bPortOpen == FALSE)
+			//+add psh 080701
+			if (TVCommCtrl.m_bPortOpen)
 			{
-				CString szErrMsg;
-				szErrMsg.Format("Failed to open COM port (%s)", CurrentSet->sTVComPort);
-				AfxMessageBox(szErrMsg);
+				TVCommCtrl.PortClose();
+				_Wait(150);
+			}
+
+			if (TVCommCtrl.Create(CurrentSet->sTVComPort, CurrentSet->wTVBaudRate) == FALSE)
+			{
+				TVCommCtrl.PortClose();
+				TVCommCtrl.Create(CurrentSet->sTVComPort, CurrentSet->wTVBaudRate);
+				if (TVCommCtrl.m_bPortOpen == FALSE)
+				{
+					CString szErrMsg;
+					szErrMsg.Format("Failed to open COM port (%s)", CurrentSet->sTVComPort);
+					AfxMessageBox(szErrMsg);
+				}
 			}
 		}
+
+
 		//-
 	}
 
@@ -2795,8 +2547,11 @@ void CDATsysView::LoadRegistrySetting(CEnvironmentData* pCurrentSet)
 		pCurrentSet->sHDMIComPort			= pApp->GetProfileString(_T("Config"), _T("HDMI Generator ComPort"), "\\\\.\\COM11");
 		if(pCurrentSet->sHDMIComPort		== _T("")) pCurrentSet->sHDMIComPort = "\\\\.\\COM11";
 		
-		pCurrentSet->sThComPort				= pApp->GetProfileString(_T("Config"), _T("Thermometer ComPort"), "\\\\.\\COM13");
-		if(pCurrentSet->sThComPort			== _T("")) pCurrentSet->sThComPort = "\\\\.\\COM13";
+		pCurrentSet->sThComPort = pApp->GetProfileString(_T("Config"), _T("Thermometer ComPort"), "\\\\.\\COM13");
+		if (pCurrentSet->sThComPort == _T("")) pCurrentSet->sThComPort = "\\\\.\\COM13";
+
+		pCurrentSet->sSM_DIOComPort = pApp->GetProfileString(_T("Config"), _T("DIO Jig ComPort"), "COM5");
+		if (pCurrentSet->sSM_DIOComPort == _T("")) pCurrentSet->sSM_DIOComPort = "COM5";
 	}
 	else
 	{
@@ -2820,6 +2575,11 @@ void CDATsysView::LoadRegistrySetting(CEnvironmentData* pCurrentSet)
 		
 		pCurrentSet->sThComPort				= pApp->GetProfileString(_T("Config"), _T("Thermometer ComPort"), "\\\\.\\COM14");
 		if(pCurrentSet->sThComPort			== _T("")) pCurrentSet->sThComPort = "\\\\.\\COM14";
+
+		pCurrentSet->sSM_DIOComPort = pApp->GetProfileString(_T("Config"), _T("DIO Jig ComPort"), "COM6");
+		if (pCurrentSet->sSM_DIOComPort == _T("")) pCurrentSet->sSM_DIOComPort = "COM6";
+
+
 	}
 
 	sBaudRate							= pApp->GetProfileString(_T("Config"), _T("Pattern Generator Baud Rate"), "9600");
@@ -2842,8 +2602,11 @@ void CDATsysView::LoadRegistrySetting(CEnvironmentData* pCurrentSet)
 	sBaudRate							= pApp->GetProfileString(_T("Config"), _T("HDMI Generator Baud Rate"), "19200");
 	pCurrentSet->wHDMIBaudRate			= (DWORD)(atoi(sBaudRate));
 
-	sBaudRate							= pApp->GetProfileString(_T("Config"), _T("Thermometer Baud Rate"), "9600");
-	pCurrentSet->wThBaudRate			= (DWORD)(atoi(sBaudRate));
+	sBaudRate = pApp->GetProfileString(_T("Config"), _T("Thermometer Baud Rate"), "9600");
+	pCurrentSet->wThBaudRate = (DWORD)(atoi(sBaudRate));
+
+	sBaudRate = pApp->GetProfileString(_T("Config"), _T("DIO Jig Baud Rate"), "19200");
+	pCurrentSet->wSM_DIOBaudRate = (DWORD)(atoi(sBaudRate));
 
 	pCurrentSet->bUsePatternGen			= pApp->GetProfileInt(_T("Config"), _T("Use Pattern Generator"), 1);
 //	pCurrentSet->bUseTVCommPort			= pApp->GetProfileInt(_T("Config"), _T("Use TVComm Port"), 1);
@@ -2851,7 +2614,9 @@ void CDATsysView::LoadRegistrySetting(CEnvironmentData* pCurrentSet)
 	pCurrentSet->bUseScanner			= pApp->GetProfileInt(_T("Config"), _T("Use Scanner"), 1);
 	pCurrentSet->bUseHDMIGen			= pApp->GetProfileInt(_T("Config"), _T("Use HDMI Generator"), 1);
 	pCurrentSet->bUseIrChk				= pApp->GetProfileInt(_T("Config"), _T("Use IR Checker"), 1);
-	pCurrentSet->bUseTh					= pApp->GetProfileInt(_T("Config"), _T("Use Thermometer"), 1);
+	pCurrentSet->bUseTh = pApp->GetProfileInt(_T("Config"), _T("Use Thermometer"), 1);
+	pCurrentSet->bUseSM_DIO = pApp->GetProfileInt(_T("Config"), _T("Use DIO Jig"), 1);
+	
 
 	//+change kwmoon 080804
 	pCurrentSet->nAdcType				= pApp->GetProfileInt(_T("Config"), _T("ADC Type"), 0); // 0 : RS232C, 1 : I2C
@@ -2978,6 +2743,7 @@ void CDATsysView::LoadRegistrySetting(CEnvironmentData* pCurrentSet)
 	{
 		pCurrentSet->nRemoteType = 0;
 	}
+	pCurrentSet->b2PCBA_WID = m_Ini.GetProfileInt(GENERAL_S, "Scan TWO LABEL");
 
 	pCurrentSet->sAvSwitchBoxComPort	= pApp->GetProfileString(_T("Config"), _T("AV SwitchBox ComPort"), "COM4");
 	pCurrentSet->bAvSwitchBoxBuzzerMute	= pApp->GetProfileInt(_T("Config"), _T("AV SwitchBox Buzzet Mute"), 1);
@@ -2997,6 +2763,7 @@ void CDATsysView::LoadRegistrySetting(CEnvironmentData* pCurrentSet)
 	pCurrentSet->nSoundInDeviceID = pApp->GetProfileInt(_T("Config"), _T("Sound Device ID"), 0);
 	pCurrentSet->sSoundInDeviceName = pApp->GetProfileString(_T("Config"), _T("Sound Device Name"), "NC");
 
+	pCurrentSet->bNoVideoCapture		= pApp->GetProfileInt(_T("Config"), _T("No Video Capture"), 0);
 	
 
 }
@@ -3317,7 +3084,14 @@ void CDATsysView::SaveRegistrySetting()
 	sBaudRate.Format("%d", CurrentSet->wThBaudRate);
 	pApp->WriteProfileString(_T("Config"), _T("Thermometer Baud Rate"), sBaudRate);
 	pApp->WriteProfileInt(_T("Config"), _T("Use Thermometer"),			CurrentSet->bUseTh);
-	
+
+
+	pApp->WriteProfileString(_T("Config"), _T("DIO Jig ComPort"), CurrentSet->sSM_DIOComPort);
+	sBaudRate.Format("%d", CurrentSet->wSM_DIOBaudRate);
+	pApp->WriteProfileString(_T("Config"), _T("DIO Jig Baud Rate"), sBaudRate);
+
+	pApp->WriteProfileInt(_T("Config"), _T("Use DIO Jig"),			CurrentSet->bUseSM_DIO);
+
 	pApp->WriteProfileString(_T("Config"), _T("TV ComPort"),				CurrentSet->sTVComPort);
 	//+del psh 080701
 //	sBaudRate.Format("%d", CurrentSet->wTVBaudRate);
@@ -3450,6 +3224,8 @@ void CDATsysView::SaveRegistrySetting()
 	//+add psh 110226
 	pApp->WriteProfileInt(_T("Config"), _T("Remocon Custom Code"),		(UINT)CurrentSet->nRemoteCustomCode);
 	pApp->WriteProfileInt(_T("Config"), _T("Remocon Type"),		(UINT)CurrentSet->nRemoteType);
+	pApp->WriteProfileInt(_T("Config"), _T("Scan TWO LABEL"),		(UINT)CurrentSet->b2PCBA_WID);
+	
 
 	pApp->WriteProfileInt(_T("Config"), _T("AV SwitchBox Buzzet Mute"),		(UINT)CurrentSet->bAvSwitchBoxBuzzerMute);
 
@@ -3463,7 +3239,8 @@ void CDATsysView::SaveRegistrySetting()
 
 	pApp->WriteProfileInt(_T("Config"), _T("Sound Device ID"), CurrentSet->nSoundInDeviceID);
 	pApp->WriteProfileString(_T("Config"), _T("Sound Device Name"), CurrentSet->sSoundInDeviceName);
-
+	pApp->WriteProfileInt(_T("Config"), _T("No Video Capture"), CurrentSet->bNoVideoCapture);
+	
 }
 
 void CDATsysView::OnRunAbort() 
@@ -3533,6 +3310,13 @@ void CDATsysView::OnRunMakeRef()
 	CString sTmp;
 	CString sBuf;
 	BOOL bUniqueFolderName = FALSE;
+	Sleep(10);
+	if (m_KeyF6Press == 1)
+	{
+		m_KeyF6Press = 0;
+		return;
+	}
+
 	if (m_bResultDlgActivate)
 	{
 		SendMessage(UM_CLOSE_RESULT_DLG, 0, 0);
@@ -3678,6 +3462,12 @@ LRESULT CDATsysView::RunTest(WPARAM wParam, LPARAM lParam)
 	ComLogClear();
 	CurrentSet->sMacAdd = _T("");
 	CurrentSet->bMacAddCheck = FALSE;
+	CurrentSet->sWifiMacAdd = _T("");
+	CurrentSet->bWifiMacAddCheck = FALSE;
+	CurrentSet->sBTMacAdd = _T("");
+	CurrentSet->bBTMacAddCheck = FALSE;
+
+
 	if(!CurrentSet->bIsRunning)
 	{
 		if(CurrentSet->sSeqPath.IsEmpty())
@@ -3688,6 +3478,30 @@ LRESULT CDATsysView::RunTest(WPARAM wParam, LPARAM lParam)
 		
 		if((nType == 0) || (nType == 2)) // 0:Run Test, 1:Make Ref 2:Adjust Spec
 		{
+			if (CurrentSet->b2PCBA_WID == 1)
+			{
+				ctrlWipIdEdit2.GetWindowText(sTmp);
+
+				//+add 090203(Modification No2)
+				sTmp.TrimRight(); sTmp.TrimLeft();
+
+				if (sTmp.IsEmpty())
+				{
+					m_strWipId2 = _T("");
+					gGmesCtrl.m_sSetID2 = _T("");
+					AfxMessageBox("Please Insert Wip ID!");
+					CurrentSet->bIsRunMsg = FALSE; return 0;
+				}
+				else
+				{
+					sTmp.TrimRight(0x0a);
+					sTmp.TrimRight(0x0d);
+					m_strWipId2 = sTmp;
+					gGmesCtrl.m_sSetID2 = sTmp;
+				}
+			}
+
+
 			ctrlWipIdEdit.GetWindowText(sTmp);
 			
 			//+add 090203(Modification No2)
@@ -3710,14 +3524,29 @@ LRESULT CDATsysView::RunTest(WPARAM wParam, LPARAM lParam)
 			//	m_strWipId = "TS372100XL";
 				if (CurrentSet->bUploadMes)
 				{
-					if ((CurrentSet->nProcessType == 0) || (CurrentSet->nProcessType == 1))
+					if((CurrentSet->bAutoGMES_ChangeModel == 1)&& ((CurrentSet->nProcessType == 0) || (CurrentSet->nProcessType == 1)))
 					{
 						if (m_strWipId.GetLength() > 11)
 						{
-							if (m_strWipId.Find(CurrentSet->sModelName) != 0)
+							if (m_strWipId.Find(CurrentSet->sModelName) == -1)
 							{
 								CString lFindName;
-									lFindName = m_strWipId.Left(11);
+								int lpos = m_strWipId.Find("EBT");
+								if (lpos == -1)
+								{
+									lpos = m_strWipId.Find("EBR");
+								}
+
+								if (lpos >= 0)
+								{
+									lFindName = m_strWipId.Mid(lpos, 11);
+								}
+								else
+								{
+									AfxMessageBox("Model Change Fail! \r\n \r\n Cannot Found EBR or EBT in WipID! \r\n \r\n");
+									return 0;
+								}
+
 									CString str;
 									str = "PCB S/N MODEL is [";
 									str += lFindName;
@@ -3772,7 +3601,17 @@ LRESULT CDATsysView::RunTest(WPARAM wParam, LPARAM lParam)
 				}
 			}
 		}
+		else
+		{
+			m_strWipId = _T("REF1");
+			gGmesCtrl.m_sSetID = _T("REF1");
+			if (CurrentSet->b2PCBA_WID == 1)
+			{
 
+				m_strWipId2 = _T("REF2");
+				gGmesCtrl.m_sSetID2 = _T("REF2");
+			}
+		}
 		//090615
 		AudioMeasureStop();
 
@@ -3986,7 +3825,7 @@ LRESULT CDATsysView::InitDeviceDialog(WPARAM wParam, LPARAM lParam)
 	CurrentSet->nJigStatus = gJigStatus;
 	
 	m_pInitDlg->AddString2List(sMsg);
-
+#ifndef  DEBUG_USB_FTD232_CODE__//	DEBUG_MD5_CODE__
 	if(!gPciDioCtrl.m_bPCIDIO){
 		if(gUsbDioCtrl.GetNumDevices(nUsbdio))
 		{
@@ -4013,7 +3852,54 @@ LRESULT CDATsysView::InitDeviceDialog(WPARAM wParam, LPARAM lParam)
 		}
 		m_pInitDlg->AddString2List(sMsg);
 	}
+
+#endif
 	m_pInitDlg->m_ctrlProgress.SetPos(50);
+	if (CurrentSet->bUseSM_DIO)
+	{
+		if ((g_hCommWnd = GetSafeHwnd()) == NULL)
+		{
+			AfxMessageBox("View Handle Null!");
+		}
+		InitSM_DIO(CurrentSet->sSM_DIOComPort, CurrentSet->wSM_DIOBaudRate);
+		sMsg = _T("[SM IO CTRL.] Port Open Check = ");
+
+		// Pattern Generator Ctrl Port Open
+		if (gSMDIO_Ctrl.m_bPortOpen == FALSE)
+		{
+			if (gSMDIO_Ctrl.CreateComm(CurrentSet->sSM_DIOComPort, CurrentSet->wSM_DIOBaudRate)) sMsg += "PASS";
+			else sMsg += "FAIL";
+		}
+		else sMsg += "PASS";
+
+		m_pInitDlg->AddString2List(sMsg);
+		//+add 090922(Modification No1)
+		if (gSMDIO_Ctrl.m_bPortOpen == TRUE)
+		{
+			gSMDIO_Ctrl.SetTargetDi(0,FALSE);
+
+			if (gSMDIO_Ctrl.CheckTargetInput())
+			{
+
+				sMsg = "[SM IO CTRL.] COMM CHECK OK";
+			}
+			else {
+				gSMDIO_Ctrl.SetTargetDi(0, TRUE);
+				if (gSMDIO_Ctrl.CheckTargetInput())
+				{
+
+					sMsg = "[SM IO CTRL.] COMM CHECK OK";
+				}
+				else
+				{
+					sMsg = "[SM IO CTRL.] COMM CHECK ERROR - FAIL";
+				}
+			}
+			m_pInitDlg->AddString2List(sMsg);
+		}
+
+	}
+	
 
 	//==================
 	// Init AvSwitchBox      
@@ -4116,9 +4002,17 @@ END_INIT :
 
 	// Open AnalogGrabber
 //		if(AnalogControl.OnPciCardOpen(&m_pInitDlg->m_ctrlProgress,70, m_pVideoViewWnd->GetSafeHwnd()) == FALSE) sMsg += "FAIL";
-	sMsg = "[Analog Grabber] Check = ";
-	if(AnalogControl.OnPciCardOpen() == FALSE) sMsg += "FAIL";
-	else sMsg += "PASS";
+	if (CurrentSet->bNoVideoCapture == 1)
+	{
+		AnalogControl.m_bGrabberInit = FALSE;
+		sMsg = "[Analog Grabber] Check = SKIP";
+	}
+	else
+	{
+		sMsg = "[Analog Grabber] Check = ";
+		if (AnalogControl.OnPciCardOpen() == FALSE) sMsg += "FAIL";
+		else sMsg += "PASS";
+	}
 
 	m_pInitDlg->AddString2List(sMsg);
 	m_pInitDlg->m_ctrlProgress.SetPos(90);
@@ -4769,6 +4663,15 @@ END_WHILE_LOOP :
 
 END_EXIT:
 
+	//231212 godtech
+	if (gPciDioCtrl.m_bPCIDIO) {
+		gPciDioCtrl.DioOut_Reset();
+	}
+	else {
+		gUsbDioCtrl.WriteByte(0x00);
+	}
+
+
 	StepInforInit();
 
 	pView->m_szCurrentStatus	= pView->m_szVersion;
@@ -5002,6 +4905,8 @@ END_EXIT:
 
 	pView->m_CurrentStep = 0;
 
+
+
 	return 0;
 }
 
@@ -5078,6 +4983,8 @@ int CDATsysView::StepRun()
 	m_CtrlListMainProcess.SetItem(m_CurrentStep - 1, 2, LVIF_TEXT, _T("RUN"), NULL, NULL, NULL, NULL);
 	m_CtrlListMainProcessEx.SetCellBackColor(m_CurrentStep - 1, RGB(255,255,0));
 
+// CLEAR DIO Set
+	gSMDIO_Ctrl.ResetTargetValue();
 
 	if(pCurStep->m_bRunAudioTest){
 		g_pView->AudioMeasureStop();
@@ -5381,9 +5288,13 @@ void CDATsysView::OnTimer(UINT_PTR nIDEvent)
 				m_strWipId = _T("");
 				ctrlWipIdEdit.SetWindowText(_T(""));
 				
+				m_strWipId2 = _T("");
+				ctrlWipIdEdit2.SetWindowText(_T(""));
+
 				UpdateData(TRUE);
 
 				ctrlWipIdEdit.SetFocus();
+				m_nInsertSel = 0;
 			}
 
 			break;
@@ -5986,11 +5897,26 @@ void CDATsysView::OnOption()
 	if(CurrentSet->bUseScanner)
 	{
 		ctrlWipIdEdit.SetReadOnly(TRUE);
+		ctrlWipIdEdit2.SetReadOnly(TRUE);
+		
+		ctrlWipIDLabel.SetBkColor(0x00FF00);
+		if (CurrentSet->b2PCBA_WID == 1)
+			ctrlWipIDLabel2.SetBkColor(0x00FF00);
+		else
+			ctrlWipIDLabel2.SetBkColor(0x808080);
 	}
 	else
 	{
 		ctrlWipIdEdit.SetReadOnly(FALSE);
+		if(CurrentSet->b2PCBA_WID == 1)
+			ctrlWipIdEdit2.SetReadOnly(FALSE);
+		else
+			ctrlWipIdEdit2.SetReadOnly(TRUE);
+		ctrlWipIDLabel.SetBkColor(0x808080);
+		ctrlWipIDLabel2.SetBkColor(0x808080);
 	}
+	
+
 	UpdateVersionInfo();
 
 	if(AnalogControl.OnPciCardOpen()){
@@ -6275,6 +6201,10 @@ CEnvironmentData::CEnvironmentData()
 	sDJSound_Version	= _T("");
 	sWirelessTx_Version	= _T("");
 	sWirelessRx_Version	= _T("");
+	sWoofer_Rx_Version = _T("");
+	sRear_Kit_Rx_Version = _T("");
+	sRear_SPK_L_Version = _T("");
+	sRear_SPK_R_Version = _T("");
 	sChecksum			= _T("");
 	
 
@@ -6327,10 +6257,13 @@ CEnvironmentData::CEnvironmentData()
 	nChipType = 0x01;
 	nProcessType = 0;
 	sFixtureId	= _T("");
-	sMacAdd	= _T("");
+	sMacAdd = _T("");
+	sWifiMacAdd = _T("");
+	sBTMacAdd = _T("");
 	nModelInfo_Check = 0;
 	bFixtureIdCheck = TRUE;
-	bMacAddCheck = FALSE;
+	bWifiMacAddCheck = FALSE;
+	bNoVideoCapture = FALSE;
 }
 
 void CDATsysView::OnClickMainViewGrid() 
@@ -6487,6 +6420,15 @@ BOOL CDATsysView::PreTranslateMessage(MSG* pMsg)
 	//{
 	//	return TRUE;
 	//}
+	if (pMsg->message == WM_KEYDOWN)
+	{
+		if (pMsg->wParam == VK_F6)
+		{
+			m_KeyF6Press = 1;
+			return TRUE;
+		}
+			
+	}
 
 	if (m_hAccel != NULL)
     {
@@ -6554,6 +6496,7 @@ void CDATsysView::OnRunAdjSpec()
 	}
 }
 
+#if 0
 //+add kwmoon 080527
 LRESULT CDATsysView::OnUploadMesData(WPARAM wParam, LPARAM lParam)
 {
@@ -6566,7 +6509,7 @@ LRESULT CDATsysView::OnUploadMesData(WPARAM wParam, LPARAM lParam)
 	if(m_strWipId == _T("")){
 		m_strWipId = gGmesCtrl.m_sSetID;
 	}
-
+	
 	if(bPass)
 	{
 		nResult = UploadMasterTable(m_strWipId, TRUE, sTime);
@@ -6602,6 +6545,113 @@ LRESULT CDATsysView::OnUploadMesData(WPARAM wParam, LPARAM lParam)
 	}
 
 	SetTimer(2, 1000, NULL);
+	return 0;
+
+}
+
+#else
+LRESULT CDATsysView::OnUploadMesData(WPARAM wParam, LPARAM lParam)
+{
+	BOOL bPass = (BOOL)wParam;
+	int nResult;
+	CString sCurentTime;
+
+	// change PSH 090507
+
+	if (m_strWipId == _T("")) {
+		m_strWipId = gGmesCtrl.m_sSetID;
+	}
+	OnUploadMesDataDualFunction(bPass, m_strWipId);
+
+	if (CurrentSet->b2PCBA_WID == 1)
+	{
+		if (m_strWipId2 == _T("")) {
+			m_strWipId2 = gGmesCtrl.m_sSetID2;
+		}
+		OnUploadMesDataDualFunction(bPass, m_strWipId2);
+	}
+
+	//if (bPass)
+	//{
+	//	nResult = UploadMasterTable(m_strWipId, TRUE, sTime);
+	//	if (nResult == 2) {
+	//		nResult = UploadMasterTable(m_strWipId, TRUE, sTime);
+	//	}
+	//}
+	//else
+	//{
+	//	nResult = UploadMasterTable(m_strWipId, FALSE, sTime);
+	//	if (nResult == 2) {
+	//		nResult = UploadMasterTable(m_strWipId, FALSE, sTime);
+	//	}
+	//}
+	//if (nResult != 0)
+	//{
+	//	COleDateTime  CurTime;
+	//	CurTime = COleDateTime::GetCurrentTime();
+	//	sCurentTime = CurTime.Format("%Y-%m-%d %H:%M:%S");
+	//	AfxMessageBox("GMES ERROR : Test Result Upload");
+	//	MesData_LocalSaveText(sCurentTime, m_strWipId, bPass, sTime);
+	//}
+	//if (MesData_AutoUpLoad_DataCheck())
+	//{
+	//	ShowSystemMsg(MES_DATA_AUTOUPLOAD_MSG);
+	//	MesData_AutoUpLoad();
+	//	CloseSystemMsg();
+	//}
+
+	SetTimer(2, 1000, NULL);
+	return 0;
+
+}
+#endif
+int CDATsysView::OnUploadMesDataDualFunction(BOOL bPass, CString l_strWipId)
+{
+	//BOOL bPass = (BOOL)wParam;
+	int nResult;
+	CString sCurentTime;
+
+	// change PSH 090507
+	
+	//if (m_strWipId == _T("")) {
+	//	m_strWipId = gGmesCtrl.m_sSetID;
+	//}
+
+	if (bPass)
+	{
+		nResult = UploadMasterTable(l_strWipId, TRUE, sTime);
+		if (nResult == 2) {
+			nResult = UploadMasterTable(l_strWipId, TRUE, sTime);
+		}
+	}
+	else
+	{
+		nResult = UploadMasterTable(l_strWipId, FALSE, sTime);
+		if (nResult == 2) {
+			nResult = UploadMasterTable(l_strWipId, FALSE, sTime);
+		}
+	}
+
+
+	if (nResult != 0)
+	{
+		COleDateTime  CurTime;
+		CurTime = COleDateTime::GetCurrentTime();
+
+		sCurentTime = CurTime.Format("%Y-%m-%d %H:%M:%S");
+
+		AfxMessageBox("GMES ERROR : Test Result Upload");
+		MesData_LocalSaveText(sCurentTime, l_strWipId, bPass, sTime);
+	}
+
+	if (MesData_AutoUpLoad_DataCheck())
+	{
+		ShowSystemMsg(MES_DATA_AUTOUPLOAD_MSG);
+		MesData_AutoUpLoad();
+		CloseSystemMsg();
+	}
+
+	//SetTimer(2, 1000, NULL);
 	return 0;
 
 }
@@ -6708,10 +6758,30 @@ LRESULT CDATsysView::OnCommunication(WPARAM wParam, LPARAM lParam)
 					else{
 						sTmp = strWId;
 					}
-					ctrlWipIdEdit.SetWindowText(sTmp);
+					if ((CurrentSet->b2PCBA_WID == 1) && (m_nInsertSel == 1))
+					{
+						ctrlWipIdEdit2.SetWindowText(sTmp);
+						m_nInsertSel = 0;
+					}
+					else
+					{
+						ctrlWipIdEdit.SetWindowText(sTmp);
+						m_nInsertSel = 1;
+					}
+					
 				}
 				else{
-					ctrlWipIdEdit.SetWindowText(strWId);
+					
+					if ((CurrentSet->b2PCBA_WID == 1) && (m_nInsertSel == 1))
+					{
+						ctrlWipIdEdit2.SetWindowText(strWId);
+						m_nInsertSel = 0;
+					}
+					else
+					{
+						ctrlWipIdEdit.SetWindowText(strWId);
+						m_nInsertSel = 1;
+					}
 				}
 				ScannerCtrl.m_ctrlScannerCtrl.m_QueueRead.Clear();
 			}
@@ -6796,6 +6866,114 @@ LRESULT CDATsysView::OnCommunication(WPARAM wParam, LPARAM lParam)
 					//::SetEvent(TVCommCtrl.m_hReadEvent);
 					(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).Clear();
 					g_pView->m_Rs232cAdcManualCheckDlg.WriteLog(strReadData);
+				}
+			}
+			else if ((!CurrentSet->bIsRunning) && (TVCommCtrl.m_bCheckReadVersion == 1))
+			{
+				(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).GetByte(&aByte);  //글자 하나씩 읽어옴
+				if (aByte == 0xbb) {
+					memset(TVCommCtrl.m_nReceiveData, 0, 225);
+					TVCommCtrl.m_nReceiveLength = 1;
+					TVCommCtrl.m_nReceiveData[0] = aByte;
+					if (nSize >= 2) {
+						(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).GetByte(&nRevSize);  //글자 하나씩 읽어옴
+						TVCommCtrl.m_nRevSize = nRevSize;
+						TVCommCtrl.m_nReceiveData[1] = nRevSize;
+						TVCommCtrl.m_nReceiveLength = nSize;
+					}
+					for (i = 2; i < nSize; i++)
+					{
+						(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).GetByte(&aByte);  //글자 하나씩 읽어옴
+
+						TVCommCtrl.m_nReceiveData[i] = aByte;
+						sTmp.Format(" %02X", aByte);
+						strReadData = strReadData + sTmp;
+					}
+					if ((nRevSize + 2) == nSize) {
+						strReadData = _T("");
+						for (i = 0; i < nSize; i++)
+						{
+							sTmp.Format(" %02X", TVCommCtrl.m_nReceiveData[i]);
+							strReadData = strReadData + sTmp;
+						}
+
+						(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).Clear();
+						TVCommCtrl.m_sReceive.Format("%s", strReadData);
+						//::SetEvent(TVCommCtrl.m_hReadEvent);
+						TVCommCtrl.m_ReadComplete = 1;
+						if (CurrentSet->bCommDisplay) {
+							AddStringToStatus("DFT<:" + strReadData);
+						}
+					}
+				}
+				else {
+					if (TVCommCtrl.m_nReceiveLength == 1)
+					{
+						TVCommCtrl.m_nRevSize = aByte;
+					}
+					if ((TVCommCtrl.m_nRevSize + 2) == TVCommCtrl.m_nReceiveLength) {
+						(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).Clear();
+					}
+					else if ((TVCommCtrl.m_nRevSize + 2) == (TVCommCtrl.m_nReceiveLength + nSize))
+					{
+						TVCommCtrl.m_nReceiveData[TVCommCtrl.m_nReceiveLength++] = aByte;
+						for (i = 1; i < nSize; i++)
+						{
+							(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).GetByte(&aByte);  //글자 하나씩 읽어옴
+
+							TVCommCtrl.m_nReceiveData[TVCommCtrl.m_nReceiveLength++] = aByte;
+						}
+						strReadData = _T("");
+						for (i = 0; i < TVCommCtrl.m_nRevSize + 2; i++)
+						{
+							sTmp.Format(" %02X", TVCommCtrl.m_nReceiveData[i]);
+							strReadData = strReadData + sTmp;
+						}
+
+						(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).Clear();
+						TVCommCtrl.m_sReceive.Format("%s", strReadData);
+						//::SetEvent(TVCommCtrl.m_hReadEvent);
+						TVCommCtrl.m_ReadComplete = 1;
+						if (CurrentSet->bCommDisplay) {
+							AddStringToStatus("DFT<:" + strReadData);
+						}
+					}
+					else if ((TVCommCtrl.m_nRevSize + 2) > (TVCommCtrl.m_nReceiveLength + nSize))
+					{
+						TVCommCtrl.m_nReceiveData[TVCommCtrl.m_nReceiveLength++] = aByte;
+						for (i = 1; i < nSize; i++)
+						{
+							(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).GetByte(&aByte);  //글자 하나씩 읽어옴
+
+							TVCommCtrl.m_nReceiveData[TVCommCtrl.m_nReceiveLength++] = aByte;
+						}
+					}
+					else if ((TVCommCtrl.m_nRevSize + 2) <= (TVCommCtrl.m_nReceiveLength + nSize))
+					{
+						TVCommCtrl.m_nReceiveData[TVCommCtrl.m_nReceiveLength++] = aByte;
+						nTemp = TVCommCtrl.m_nRevSize + 2 - TVCommCtrl.m_nReceiveLength;
+						for (i = 1; i < nTemp; i++)
+						{
+							(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).GetByte(&aByte);  //글자 하나씩 읽어옴
+
+							TVCommCtrl.m_nReceiveData[TVCommCtrl.m_nReceiveLength++] = aByte;
+						}
+
+						strReadData = _T("");
+						for (i = 0; i < TVCommCtrl.m_nRevSize + 2; i++)
+						{
+							sTmp.Format(" %02X", TVCommCtrl.m_nReceiveData[i]);
+							strReadData = strReadData + sTmp;
+						}
+
+						(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).Clear();
+						TVCommCtrl.m_sReceive.Format("%s", strReadData);
+						//::SetEvent(TVCommCtrl.m_hReadEvent);
+						TVCommCtrl.m_ReadComplete = 1;
+						if (CurrentSet->bCommDisplay) {
+							AddStringToStatus("DFT<:" + strReadData);
+						}
+					}
 				}
 			}
 			else if((!CurrentSet->bIsRunning) && CurrentSet->bCommDisplay)
@@ -6916,116 +7094,57 @@ LRESULT CDATsysView::OnCommunication(WPARAM wParam, LPARAM lParam)
 					}
 				}
 			}
-			else if (TVCommCtrl.m_bCheckReadVersion == 1)
-			{
-				(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).GetByte(&aByte);  //글자 하나씩 읽어옴
-				if (aByte == 0xbb) {
-					memset(TVCommCtrl.m_nReceiveData, 0, 225);
-					TVCommCtrl.m_nReceiveLength = 1;
-					TVCommCtrl.m_nReceiveData[0] = aByte;
-					if (nSize >= 2) {
-						(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).GetByte(&nRevSize);  //글자 하나씩 읽어옴
-						TVCommCtrl.m_nRevSize = nRevSize;
-						TVCommCtrl.m_nReceiveData[1] = nRevSize;
-						TVCommCtrl.m_nReceiveLength = nSize;
-					}
-					for (i = 2; i < nSize; i++)
-					{
-						(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).GetByte(&aByte);  //글자 하나씩 읽어옴
-
-						TVCommCtrl.m_nReceiveData[i] = aByte;
-						sTmp.Format(" %02X", aByte);
-						strReadData = strReadData + sTmp;
-					}
-					if ((nRevSize + 2) == nSize) {
-						strReadData = _T("");
-						for (i = 0; i < nSize; i++)
-						{
-							sTmp.Format(" %02X", TVCommCtrl.m_nReceiveData[i]);
-							strReadData = strReadData + sTmp;
-						}
-
-						(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).Clear();
-						TVCommCtrl.m_sReceive.Format("%s", strReadData);
-						::SetEvent(TVCommCtrl.m_hReadEvent);
-						if (CurrentSet->bCommDisplay) {
-							AddStringToStatus("DFT<:" + strReadData);
-						}
-					}
-				}
-				else {
-					if (TVCommCtrl.m_nReceiveLength == 1)
-					{
-						TVCommCtrl.m_nRevSize = aByte;
-					}
-					if ((TVCommCtrl.m_nRevSize + 2) == TVCommCtrl.m_nReceiveLength) {
-						(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).Clear();
-					}
-					else if ((TVCommCtrl.m_nRevSize + 2) == (TVCommCtrl.m_nReceiveLength + nSize))
-					{
-						TVCommCtrl.m_nReceiveData[TVCommCtrl.m_nReceiveLength++] = aByte;
-						for (i = 1; i < nSize; i++)
-						{
-							(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).GetByte(&aByte);  //글자 하나씩 읽어옴
-
-							TVCommCtrl.m_nReceiveData[TVCommCtrl.m_nReceiveLength++] = aByte;
-						}
-						strReadData = _T("");
-						for (i = 0; i < TVCommCtrl.m_nRevSize + 2; i++)
-						{
-							sTmp.Format(" %02X", TVCommCtrl.m_nReceiveData[i]);
-							strReadData = strReadData + sTmp;
-						}
-
-						(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).Clear();
-						TVCommCtrl.m_sReceive.Format("%s", strReadData);
-						::SetEvent(TVCommCtrl.m_hReadEvent);
-						if (CurrentSet->bCommDisplay) {
-							AddStringToStatus("DFT<:" + strReadData);
-						}
-					}
-					else if ((TVCommCtrl.m_nRevSize + 2) > (TVCommCtrl.m_nReceiveLength + nSize))
-					{
-						TVCommCtrl.m_nReceiveData[TVCommCtrl.m_nReceiveLength++] = aByte;
-						for (i = 1; i < nSize; i++)
-						{
-							(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).GetByte(&aByte);  //글자 하나씩 읽어옴
-
-							TVCommCtrl.m_nReceiveData[TVCommCtrl.m_nReceiveLength++] = aByte;
-						}
-					}
-					else if ((TVCommCtrl.m_nRevSize + 2) <= (TVCommCtrl.m_nReceiveLength + nSize))
-					{
-						TVCommCtrl.m_nReceiveData[TVCommCtrl.m_nReceiveLength++] = aByte;
-						nTemp = TVCommCtrl.m_nRevSize + 2 - TVCommCtrl.m_nReceiveLength;
-						for (i = 1; i < nTemp; i++)
-						{
-							(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).GetByte(&aByte);  //글자 하나씩 읽어옴
-
-							TVCommCtrl.m_nReceiveData[TVCommCtrl.m_nReceiveLength++] = aByte;
-						}
-
-						strReadData = _T("");
-						for (i = 0; i < TVCommCtrl.m_nRevSize + 2; i++)
-						{
-							sTmp.Format(" %02X", TVCommCtrl.m_nReceiveData[i]);
-							strReadData = strReadData + sTmp;
-						}
-
-						(TVCommCtrl.m_ctrlTVCommCtrl.m_QueueRead).Clear();
-						TVCommCtrl.m_sReceive.Format("%s", strReadData);
-						::SetEvent(TVCommCtrl.m_hReadEvent);
-						if (CurrentSet->bCommDisplay) {
-							AddStringToStatus("DFT<:" + strReadData);
-						}
-					}
-				}
-			}
+			
 
 		}
 
 	}
-/*	else if((int)wParam == DMM.m_nPortID)
+	else if ((int)wParam == gSMDIO_Ctrl.m_nPortID)
+	{
+		if (gSMDIO_Ctrl.m_WaitReceive == 0)
+		{
+			nSize = (gSMDIO_Ctrl.m_CommCtrl.m_QueueRead).GetSize();
+			for (int i = 0; i < nSize; i++)
+			{
+				gSMDIO_Ctrl.m_CommCtrl.m_QueueRead.GetByte(&aByte);  //글자 하나씩 읽어옴
+				gSMDIO_Ctrl.m_strReceive[gSMDIO_Ctrl.m_ReceiveCount] = aByte;
+				gSMDIO_Ctrl.m_ReceiveCount++;
+			}
+			gSMDIO_Ctrl.m_CommCtrl.m_QueueRead.Clear();
+
+				
+			if (((gSMDIO_Ctrl.m_ReceiveCount >= 13) && (gSMDIO_Ctrl.m_strReceive[11] == 0x0d) && (gSMDIO_Ctrl.m_strReceive[12] == 0x0a))
+				|| ((gSMDIO_Ctrl.m_ReceiveCount >= 15) && (gSMDIO_Ctrl.m_strReceive[13] == 0x0d) && (gSMDIO_Ctrl.m_strReceive[14] == 0x0a)))
+			{
+				int lRevPort = (gSMDIO_Ctrl.m_strReceive[3] - 0x30) * 10 + gSMDIO_Ctrl.m_strReceive[4] - 0x30;
+				if ((lRevPort == 99) && (gSMDIO_Ctrl.m_strReceive[1] == 'D') && (gSMDIO_Ctrl.m_strReceive[2] == 'I'))
+				{
+					gSMDIO_Ctrl.m_strReceive[8] = 0;
+					BYTE lHex = (BYTE)hexStr2DecNum((char*)&gSMDIO_Ctrl.m_strReceive[6]);
+					for (int i = 0; i < 8; i++)
+					{
+						gSMDIO_Ctrl.m_ReceiveDIValue[i] = (lHex & (0x01 << i)) ? 1 : 0;
+					}
+
+					CheckDiStatus();
+					gSMDIO_Ctrl.m_ReceiveCount = 0;
+				}
+				else
+				{
+					gSMDIO_Ctrl.m_ReceiveCount = 0;
+					return 0;
+				}
+			}
+			else if (((gSMDIO_Ctrl.m_ReceiveCount >= 13) &&( (gSMDIO_Ctrl.m_strReceive[11] != 0x0d) || (gSMDIO_Ctrl.m_strReceive[12] != 0x0a)))
+				|| ((gSMDIO_Ctrl.m_ReceiveCount >= 15) &&( (gSMDIO_Ctrl.m_strReceive[13] != 0x0d)|| (gSMDIO_Ctrl.m_strReceive[14] != 0x0a))))
+			{
+				gSMDIO_Ctrl.m_ReceiveCount = 0;
+				return 0;
+			}
+		}
+	}
+	
+	/*	else if((int)wParam == DMM.m_nPortID)
 	{
 		strReadData2 = _T("");
 	//	buf3 += (LPCTSTR)DMM.m_CommCtrl.abIn;
@@ -7381,7 +7500,7 @@ int CDATsysView::UploadMasterTable(CString strWipid, BOOL bResult, CString sTime
 	if(!CurrentSet->bUploadMes) return 0;
 
 	::ResetEvent(m_hReadEvent_S6F2);
-	sElemString = gGmesCtrl.MakeElem_S6F1(CurrentSet->sEquipmentID, m_strWipId, bResult, sTime, TRUE);
+	sElemString = gGmesCtrl.MakeElem_S6F1(CurrentSet->sEquipmentID, strWipid, bResult, sTime, TRUE);
 	if(!gGmesCtrl.SendCommString(sElemString))
 	{
 		return 2;
@@ -7521,6 +7640,7 @@ void CDATsysView::OnRefImage()
 		sTmp.LoadString(ERROR_ADMIN_LOGIN);
 		AfxMessageBox(sTmp); return;
 	}
+	m_KeyF6Press = 0;
 	OnRunMakeRef();
 }
 
@@ -8608,18 +8728,29 @@ void CDATsysView::OnScannerEnable()
 
 	if(!CurrentSet->bUseScanner){
 		ctrlWipIdEdit.SetReadOnly(TRUE);
-		
+		ctrlWipIdEdit2.SetReadOnly(TRUE);
+
 		InitScanner(CurrentSet->sScannerComPort, CurrentSet->wScannerBaudRate);
 		CurrentSet->bUseScanner	= TRUE;
 		ctrlWipIDLabel.SetBkColor(0x00FF00);
+		if(CurrentSet->b2PCBA_WID == 1)
+			ctrlWipIDLabel2.SetBkColor(0x00FF00);
+		else
+			ctrlWipIDLabel2.SetBkColor(0x808080);
 
 	}
 	else{
 		ctrlWipIdEdit.SetReadOnly(FALSE);
+		if (CurrentSet->b2PCBA_WID == 1)
+			ctrlWipIdEdit2.SetReadOnly(FALSE);
+		else
+			ctrlWipIdEdit2.SetReadOnly(TRUE);
 
 		if(ScannerCtrl.m_bPortOpen) ScannerCtrl.PortClose();
 		CurrentSet->bUseScanner	= FALSE;
 		ctrlWipIDLabel.SetBkColor(0x808080);
+		ctrlWipIDLabel2.SetBkColor(0x808080);
+		
 	}
 //	if(bFlag) SetTimer(2, 1000, NULL);
 }
@@ -8628,6 +8759,7 @@ void CDATsysView::OnScannerDisable()
 {
 	BOOL bFlag;
 	ctrlWipIDLabel.SetBkColor(0x808080);
+	ctrlWipIDLabel2.SetBkColor(0x808080);
 
 	if(!CurrentSet->bUseScanner)return;
 
@@ -8637,6 +8769,8 @@ void CDATsysView::OnScannerDisable()
 
 	CurrentSet->bUseScanner	= FALSE;
 	ctrlWipIdEdit.SetReadOnly(FALSE);
+	if (CurrentSet->b2PCBA_WID == 1)
+		ctrlWipIdEdit2.SetReadOnly(FALSE);
 
 	if(ScannerCtrl.m_bPortOpen) ScannerCtrl.PortClose();
 
@@ -9448,7 +9582,8 @@ void CDATsysView::InitVersionGrid()
 
 	m_CtrlListVersionProcess.DeleteAllItems();
 
-	char *sHeader[] = {"BE Ver.", "FE Ver.", "Micom Ver.", "DSP Ver.", "Sub DSP Ver.", "EQ Ver.", "MEQ Ver.", "Touch Ver.", "Demo Ver.", "DJ Sound Ver.", "WirelessTx Ver.", "WirelessRx Ver.","BT Version", "HDMI Version", "Checksum"};
+	char *sHeader[] = {"BE Ver.", "FE Ver.", "Micom Ver.", "DSP Ver.", "Sub DSP Ver.", "EQ Ver.", "MEQ Ver.", "Touch Ver.", "Demo Ver.", "DJ Sound Ver.", "WirelessTx Ver.", "WirelessRx Ver.",
+		"Woofer Rx Version","Rear Kit Rx Version","Rear SPK L Version","Rear SPK R Version","BT Version", "HDMI Version", "Checksum"};
 	
 
 	// Set Column Alignment & Column Title
@@ -9458,7 +9593,7 @@ void CDATsysView::InitVersionGrid()
 	m_CtrlListVersionProcess.InsertColumn(2, _T("VERSION"), LVCFMT_CENTER, 110);
 	
 	int lCount = 0;
-	for(int nRow = 0; nRow < 15 ; nRow++)
+	for(int nRow = 0; nRow < 19 ; nRow++)
 	{
 		if (CurrentSet->bVerChecked[nRow] == 1)
 		{
@@ -10815,9 +10950,27 @@ BOOL CDATsysView::Check_MacAddress(CString sMac_Add)
 		
 	return TRUE;
 }
-
+#if 1
 BOOL CDATsysView::GetToolOption()
 { 
+
+	if (GetToolOptionDualFunction(m_strWipId) == 0)
+	{
+		return FALSE;
+
+	}
+	if (CurrentSet->b2PCBA_WID == 1)
+	{
+		if (GetToolOptionDualFunction(m_strWipId2) == 0)
+		{
+			return FALSE;
+
+		}
+	}
+	
+
+	return TRUE;
+#if 0
 	CString sTmp;
 	CString sMsg;
 	DWORD dwEventResult = 0;
@@ -10913,6 +11066,205 @@ BOOL CDATsysView::GetToolOption()
 		
 //	}
 	return TRUE;
+#endif
+}
+#else
+BOOL CDATsysView::GetToolOption()
+{
+	CString sTmp;
+	CString sMsg;
+	DWORD dwEventResult = 0;
+	clock_t		start;
+	MSG msg;
+	//	int nVal = 0;
+
+	//	if(CurrentSet->nToolOptionSetMethod == 0)
+	//	{
+	sTmp = gGmesCtrl.MakeElem_S6F11(CurrentSet->sEquipmentID, m_strWipId);
+	::ResetEvent(m_hReadEvent_S6F12);
+	::ResetEvent(m_hReadEvent_S6F5);
+
+	if (gGmesCtrl.SendCommString(sTmp))
+	{
+		gGmesCtrl.DisplyComStatus("S6F11", FALSE);
+	}
+
+	start = clock();
+	while (TRUE)
+	{
+		while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			if (msg.message == WM_QUIT)
+			{
+				CurrentSet->bIsRunning = FALSE;
+				::PostQuitMessage(0);
+				break;
+			}
+			if (!AfxGetApp()->PreTranslateMessage(&msg))
+			{
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}
+		}
+		dwEventResult = WaitForSingleObject(m_hReadEvent_S6F12, 500);
+
+		if (dwEventResult == WAIT_OBJECT_0)
+		{
+			::ResetEvent(m_hReadEvent_S6F12);
+			if (!m_bResult_S6F12) {
+				sMsg.Format(_T("GMES Barcode Report Acknowledge Error\nError Code : %s"), gGmesCtrl.m_sErrorMsg);
+				AfxMessageBox(sMsg);
+				CurrentSet->bIsRunMsg = FALSE; return FALSE;
+			}
+			break;
+		}
+		if ((clock() - start) * 1000 / CLOCKS_PER_SEC > 10000) {
+			sMsg.Format(_T("GMES S6F12(Barcode Report Acknowledg) Fail\nTime Out..."));
+			AfxMessageBox(sMsg);
+			Gmes_Connection();
+			CurrentSet->bIsRunMsg = FALSE; return FALSE;
+		}
+	}
+
+	start = clock();
+	while (TRUE)
+	{
+		while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			if (msg.message == WM_QUIT)
+			{
+				CurrentSet->bIsRunning = FALSE;
+				::PostQuitMessage(0);
+				break;
+			}
+			if (!AfxGetApp()->PreTranslateMessage(&msg))
+			{
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}
+		}
+
+		dwEventResult = WaitForSingleObject(m_hReadEvent_S6F5, 500);
+
+		if (dwEventResult == WAIT_OBJECT_0)
+		{
+			::ResetEvent(m_hReadEvent_S6F5);
+			if (!m_bResult_S6F5) {
+				sMsg.Format(_T("GMES Product Data D/L Error\nParsing Error.."));
+				AfxMessageBox(sMsg);
+				CurrentSet->bIsRunMsg = FALSE; return FALSE;
+			}
+			break;
+		}
+		if ((clock() - start) * 1000 / CLOCKS_PER_SEC > 5000) {
+			sMsg.Format(_T("GMES S6F5(Product Data) D/L Fail\nTime Out..."));
+			AfxMessageBox(sMsg);
+			Gmes_Connection();
+			CurrentSet->bIsRunMsg = FALSE; return FALSE;
+		}
+	}
+
+	//	}
+	return TRUE;
+}
+#endif
+BOOL CDATsysView::GetToolOptionDualFunction(CString l_strWipId)
+{
+	CString sTmp;
+	CString sMsg;
+	DWORD dwEventResult = 0;
+	clock_t		start;
+	MSG msg;
+	//	int nVal = 0;
+
+	//	if(CurrentSet->nToolOptionSetMethod == 0)
+	//	{
+	sTmp = gGmesCtrl.MakeElem_S6F11(CurrentSet->sEquipmentID, l_strWipId);
+	::ResetEvent(m_hReadEvent_S6F12);
+	::ResetEvent(m_hReadEvent_S6F5);
+
+	if (gGmesCtrl.SendCommString(sTmp))
+	{
+		gGmesCtrl.DisplyComStatus("S6F11", FALSE);
+	}
+
+	start = clock();
+	while (TRUE)
+	{
+		while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			if (msg.message == WM_QUIT)
+			{
+				CurrentSet->bIsRunning = FALSE;
+				::PostQuitMessage(0);
+				break;
+			}
+			if (!AfxGetApp()->PreTranslateMessage(&msg))
+			{
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}
+		}
+		dwEventResult = WaitForSingleObject(m_hReadEvent_S6F12, 500);
+
+		if (dwEventResult == WAIT_OBJECT_0)
+		{
+			::ResetEvent(m_hReadEvent_S6F12);
+			if (!m_bResult_S6F12) {
+				sMsg.Format(_T("GMES Barcode Report Acknowledge Error\nError Code : %s"), gGmesCtrl.m_sErrorMsg);
+				AfxMessageBox(sMsg);
+				CurrentSet->bIsRunMsg = FALSE; return FALSE;
+			}
+			break;
+		}
+		if ((clock() - start) * 1000 / CLOCKS_PER_SEC > 10000) {
+			sMsg.Format(_T("GMES S6F12(Barcode Report Acknowledg) Fail\nTime Out..."));
+			AfxMessageBox(sMsg);
+			Gmes_Connection();
+			CurrentSet->bIsRunMsg = FALSE; return FALSE;
+		}
+	}
+
+	start = clock();
+	while (TRUE)
+	{
+		while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			if (msg.message == WM_QUIT)
+			{
+				CurrentSet->bIsRunning = FALSE;
+				::PostQuitMessage(0);
+				break;
+			}
+			if (!AfxGetApp()->PreTranslateMessage(&msg))
+			{
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}
+		}
+
+		dwEventResult = WaitForSingleObject(m_hReadEvent_S6F5, 500);
+
+		if (dwEventResult == WAIT_OBJECT_0)
+		{
+			::ResetEvent(m_hReadEvent_S6F5);
+			if (!m_bResult_S6F5) {
+				sMsg.Format(_T("GMES Product Data D/L Error\nParsing Error.."));
+				AfxMessageBox(sMsg);
+				CurrentSet->bIsRunMsg = FALSE; return FALSE;
+			}
+			break;
+		}
+		if ((clock() - start) * 1000 / CLOCKS_PER_SEC > 5000) {
+			sMsg.Format(_T("GMES S6F5(Product Data) D/L Fail\nTime Out..."));
+			AfxMessageBox(sMsg);
+			Gmes_Connection();
+			CurrentSet->bIsRunMsg = FALSE; return FALSE;
+		}
+	}
+
+	//	}
+	return TRUE;
 }
 
 void CDATsysView::UpdateToolOptionInfo()
@@ -10928,7 +11280,7 @@ void CDATsysView::UpdateVersionInfo()
 	UpdateData(TRUE);
 	InitVersionGrid();
 #if 1
-	CString saVersion[15];
+	CString saVersion[19];
 	saVersion[0] = CurrentSet->sBE_Version;
 	saVersion[1] = CurrentSet->sFE_Version;
 	saVersion[2] = CurrentSet->sMicom_Version;
@@ -10941,11 +11293,15 @@ void CDATsysView::UpdateVersionInfo()
 	saVersion[9] = CurrentSet->sDJSound_Version;
 	saVersion[10] = CurrentSet->sWirelessTx_Version;
 	saVersion[11] = CurrentSet->sWirelessRx_Version;
-	saVersion[12] = CurrentSet->sBT_Version;
-	saVersion[13] = CurrentSet->sHDMI_Version;
-	saVersion[14] = CurrentSet->sChecksum;
+	saVersion[12] = CurrentSet->sWoofer_Rx_Version;
+	saVersion[13] = CurrentSet->sRear_Kit_Rx_Version;
+	saVersion[14] = CurrentSet->sRear_SPK_L_Version;
+	saVersion[15] = CurrentSet->sRear_SPK_R_Version;
+	saVersion[16] = CurrentSet->sBT_Version;
+	saVersion[17] = CurrentSet->sHDMI_Version;
+	saVersion[18] = CurrentSet->sChecksum;
 	int lCount = 0;
-	for (int nRow = 0; nRow < 15; nRow++)
+	for (int nRow = 0; nRow < 19; nRow++)
 	{
 		if (CurrentSet->bVerChecked[nRow] == 1)
 		{
@@ -12128,3 +12484,33 @@ void CDATsysView::OnNMDblclkListMainProcess(NMHDR* pNMHDR, LRESULT* pResult)
 //	//m_cComboSoundLeft.SetText(m_sm_sound_ctrl.m_aStrSoundDevice.GetAt(Sel));
 //	SetDlgItemText(IDC_COMBO_SOUND_L, m_sm_sound_ctrl.m_aStrSoundDevice.GetAt(Sel));
 //}
+
+
+void CDATsysView::OnStnClickedStaticWipIdLabel()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CDATsysView::CheckDiStatus()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	static int s_ReceiveDIValue[32] = {};
+//	if (g_nRunningProcessNo == 1)
+	if ((s_ReceiveDIValue[6] == 0) &&( gSMDIO_Ctrl.m_ReceiveDIValue[6] == 1))
+	{
+		//s_ReceiveDIValue[i] != gSMDIO_Ctrl.m_ReceiveDIValue[i];
+
+		OnRunRun();
+	}
+
+	
+	for (int i = 0; i < 32; i++)
+	{
+		if (s_ReceiveDIValue[i] != gSMDIO_Ctrl.m_ReceiveDIValue[i])
+		{
+			s_ReceiveDIValue[i] = gSMDIO_Ctrl.m_ReceiveDIValue[i];
+		}
+	}
+	
+}

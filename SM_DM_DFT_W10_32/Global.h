@@ -298,6 +298,10 @@ public:
 	BOOL		bUseTh;
 	DWORD		wThBaudRate;
 	CString		sThComPort;
+
+	BOOL		bUseSM_DIO;
+	DWORD		wSM_DIOBaudRate;
+	CString		sSM_DIOComPort;
 //-
 
 	UINT		nAdcType;
@@ -392,10 +396,14 @@ public:
 	CString		sDJSound_Version;
 	CString		sWirelessTx_Version;
 	CString		sWirelessRx_Version;
+	CString		sWoofer_Rx_Version;
+	CString		sRear_Kit_Rx_Version;
+	CString		sRear_SPK_L_Version;
+	CString		sRear_SPK_R_Version;
 	CString		sBT_Version;
 	CString		sHDMI_Version;
 	CString		sChecksum;
-	int			bVerChecked[15];
+	int			bVerChecked[19];
 
 
 	UINT		nProcessType;
@@ -450,6 +458,8 @@ public:
 	UINT		nRemoteCustomCode;
 	UINT		nRemoteType;
 
+	BOOL b2PCBA_WID;
+
 	BOOL		bAvSwitchBoxBuzzerMute;
 	//+add psh 110520
 	UINT		nAvSwitchBoxInitVideoCh;
@@ -462,6 +472,11 @@ public:
 	CString		sMacAdd;
 	BOOL		bMacAddCheck;
 
+	CString		sWifiMacAdd;
+	BOOL		bWifiMacAddCheck;
+	CString		sBTMacAdd;
+	BOOL		bBTMacAddCheck;
+
 	UINT		nModelInfo_Check;
 	BOOL		bFixtureIdCheck;
 
@@ -471,6 +486,7 @@ public:
 
 	int		nSoundInDeviceID;
 	CString		sSoundInDeviceName;
+	BOOL		bNoVideoCapture;
 };
 
 
@@ -911,6 +927,15 @@ const COLORREF COLOR_BLACK       = RGB(   1,   1,   1 );
 #define LEVEL_CHECK			2
 
 
+#define _COMMAND_BT_MAC_READ     0x44
+#define _COMMAND_LAN_MAC_READ     0x45
+#define _COMMAND_WIFI_MAC_READ     0x46
+#define _COMMAND_CHECK_SUM_READ     0x2D
+
+#define _FLAG_LAN_MAC_READ     0
+#define _FLAG_WIFI_MAC_READ     1
+#define _FLAG_BT_MAC_READ     2
+
 
 //	Global Variable
 extern CTypedPtrList<CPtrList, CStep*>	StepList;
@@ -1121,6 +1146,7 @@ void StringToken(CString Source, CString Deliminator, CStringArray& AddIt, BOOL 
 
 BOOL InitHDMIGen(CString sComPort, DWORD wBaudRate);
 BOOL InitThermometer(CString sComPort, DWORD wBaudRate);
+BOOL InitSM_DIO(CString sComPort, DWORD wBaudRate);
 
 void ResultData_Delete(LONG nPeriodDay); 
 //090424

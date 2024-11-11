@@ -20,6 +20,7 @@ static char THIS_FILE[] = __FILE__;
 
 #include "IrCheckerCtrl.h"
 #include "thermometer.h"
+#include "SMDIO_Jig_Ctrl.h"
 
 extern CTVCommCtrl TVCommCtrl;
 extern CAvSwitchBox AvSwitchBoxCtrl;
@@ -54,9 +55,13 @@ void COptComportPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO_PROCESS_TYPE, m_ctrlProcessTypeCmb);
 	DDX_Control(pDX, IDC_COMBO_CHIP_TYPE1, m_ctrlChipTypeCmb1);
 	DDX_Control(pDX, IDC_COMBO_CHIP_TYPE2, m_ctrlChipTypeCmb2);
+	DDX_Control(pDX, IDC_CHK_USE_DIO_JIG, m_ctrlUseDIOJigChk);
+	DDX_Control(pDX, IDC_CMB_COMPORT_DIO_JIG, m_ctrlDIOJigComportCmb);
+	DDX_Control(pDX, IDC_CMB_BAUDRATE_DIO_JIG, m_ctrlDIOJigBaudCmb);
 	DDX_Control(pDX, IDC_CHK_USE_TH, m_ctrlUseThChk);
 	DDX_Control(pDX, IDC_CMB_COMPORT_TH, m_ctrlThComportCmb);
 	DDX_Control(pDX, IDC_CMB_BAUDRATE_TH, m_ctrlThBaudCmb);
+
 	DDX_Control(pDX, IDC_CMB_COMPORT_HDMI, m_ctrlMdmiComportCmb);
 	DDX_Control(pDX, IDC_CMB_BAUDRATE_HDMI, m_ctrlHdmiBaudCmb);
 	DDX_Control(pDX, IDC_CHK_USE_HDMIGEN, m_ctrlUseHdmiGenChk);
@@ -96,6 +101,8 @@ BEGIN_MESSAGE_MAP(COptComportPage, CPropertyPage)
 	ON_BN_CLICKED(IDC_CHK_USE_HDMIGEN, OnChkUseHdmigen)
 	ON_BN_CLICKED(IDC_CHK_USE_TH, OnChkUseTh)
 	//}}AFX_MSG_MAP
+	
+	ON_BN_CLICKED(IDC_CHK_USE_DIO_JIG, &COptComportPage::OnBnClickedChkUseDioJig)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -237,6 +244,13 @@ void COptComportPage::SetThGroup(BOOL bEnable)
 	GetDlgItem(IDC_CMB_BAUDRATE_TH)->EnableWindow(bEnable);
 }
 
+void COptComportPage::SetDIOJigGroup(BOOL bEnable)
+{
+	GetDlgItem(IDC_STATIC_DIO_JIG_COMPORT)->EnableWindow(bEnable);
+	GetDlgItem(IDC_CMB_COMPORT_DIO_JIG)->EnableWindow(bEnable);
+	GetDlgItem(IDC_STATIC_DIO_JIG_BAUDRATE)->EnableWindow(bEnable);
+	GetDlgItem(IDC_CMB_BAUDRATE_DIO_JIG)->EnableWindow(bEnable);
+}
 /////////////////////////////////////////////////////////////////////////////
 
 BOOL COptComportPage::OnInitDialog() 
@@ -253,7 +267,8 @@ BOOL COptComportPage::OnInitDialog()
 	InitComPort(CurrentSet->sScannerComPort, CurrentSet->wScannerBaudRate, IDC_CMB_COMPORT_SCANNER, IDC_CMB_BAUDRATE_SCANNER);
 	InitComPort(CurrentSet->sIrChkComPort, CurrentSet->wIrChkBaudRate,IDC_CMB_COMPORT_IR_CHK, IDC_CMB_BAUDRATE_IR_CHK );
 	InitComPort(CurrentSet->sHDMIComPort, CurrentSet->wHDMIBaudRate,IDC_CMB_COMPORT_HDMI, IDC_CMB_BAUDRATE_HDMI );
-	InitComPort(CurrentSet->sThComPort, CurrentSet->wThBaudRate,IDC_CMB_COMPORT_TH, IDC_CMB_BAUDRATE_TH );
+	InitComPort(CurrentSet->sThComPort, CurrentSet->wThBaudRate, IDC_CMB_COMPORT_TH, IDC_CMB_BAUDRATE_TH);
+	InitComPort(CurrentSet->sSM_DIOComPort, CurrentSet->wSM_DIOBaudRate, IDC_CMB_COMPORT_DIO_JIG, IDC_CMB_BAUDRATE_DIO_JIG);
 
 	CComboBox* pTVParity1 = (CComboBox*)GetDlgItem(IDC_CMB_PARITY_TV1);
 	pTVParity1->SetCurSel(CurrentSet->nTVParity);
@@ -282,6 +297,9 @@ BOOL COptComportPage::OnInitDialog()
 
 	m_ctrlUseThChk.SetCheck(CurrentSet->bUseTh);
 	SetThGroup(CurrentSet->bUseTh);
+
+	m_ctrlUseDIOJigChk.SetCheck(CurrentSet->bUseSM_DIO);
+	SetDIOJigGroup(CurrentSet->bUseSM_DIO);
 
 //	InitComPort(CurrentSet->sDmmComPort, CurrentSet->wDmmBaudRate,IDC_CMB_COMPORT_DMM, IDC_CMB_BAUDRATE_DMM );
 //	m_ctrlUseDmmChk.SetCheck(CurrentSet->bUseDmm);
@@ -378,6 +396,8 @@ void COptComportPage::OnBtnComportOptApply()
 	CurrentSet->sIrChkComPort.Format(GetComPortVal(IDC_CMB_COMPORT_IR_CHK));
 	CurrentSet->sHDMIComPort.Format(GetComPortVal(IDC_CMB_COMPORT_HDMI));
 	CurrentSet->sThComPort.Format(GetComPortVal(IDC_CMB_COMPORT_TH));
+	CurrentSet->sSM_DIOComPort.Format(GetComPortVal(IDC_CMB_COMPORT_DIO_JIG));
+	//InitComPort(CurrentSet->sSM_DIOComPort, CurrentSet->wSM_DIOBaudRate, IDC_CMB_COMPORT_DIO_JIG, IDC_CMB_BAUDRATE_DIO_JIG);
 
 	// BaudRate
 	CurrentSet->wPatternBaudRate		= GetBaudRateVal(IDC_CMB_BAUDRATE_PATTERN);
@@ -386,7 +406,8 @@ void COptComportPage::OnBtnComportOptApply()
 	CurrentSet->wScannerBaudRate		= GetBaudRateVal(IDC_CMB_BAUDRATE_SCANNER);
 	CurrentSet->wIrChkBaudRate			= GetBaudRateVal(IDC_CMB_BAUDRATE_IR_CHK);
 	CurrentSet->wHDMIBaudRate			= GetBaudRateVal(IDC_CMB_BAUDRATE_HDMI);
-	CurrentSet->wThBaudRate				= GetBaudRateVal(IDC_CMB_BAUDRATE_TH);
+	CurrentSet->wThBaudRate = GetBaudRateVal(IDC_CMB_BAUDRATE_TH);
+	CurrentSet->wSM_DIOBaudRate = GetBaudRateVal(IDC_CMB_BAUDRATE_DIO_JIG);
 
 
 
@@ -397,6 +418,7 @@ void COptComportPage::OnBtnComportOptApply()
 	CurrentSet->bUseIrChk				= m_ctrlUseIrChkChk.GetCheck();
 	CurrentSet->bUseHDMIGen =  m_ctrlUseHdmiGenChk.GetCheck();
 	CurrentSet->bUseTh					= m_ctrlUseThChk.GetCheck();
+	CurrentSet->bUseSM_DIO = m_ctrlUseDIOJigChk.GetCheck();
 
 // add 20100622
 //	CurrentSet->bUseDmm			= m_ctrlUseDmmChk.GetCheck();
@@ -490,6 +512,14 @@ void COptComportPage::OnBtnComportOptApply()
 		if(gThermometerCtrl.m_bPortOpen)		gThermometerCtrl.CloseComm();
 	}
 
+	if (CurrentSet->bUseSM_DIO)
+	{
+		InitSM_DIO(CurrentSet->sSM_DIOComPort, CurrentSet->wSM_DIOBaudRate);
+	}
+	else
+	{
+		if (gSMDIO_Ctrl.m_bPortOpen)		gSMDIO_Ctrl.CloseComm();
+	}
 
 
 	CurrentSet->nProcessType = m_ctrlProcessTypeCmb.GetCurSel();
@@ -604,4 +634,11 @@ void COptComportPage::OnChkUseHdmigen()
 void COptComportPage::OnChkUseTh() 
 {
 	SetThGroup(m_ctrlUseThChk.GetCheck());
+}
+
+
+void COptComportPage::OnBnClickedChkUseDioJig()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	SetDIOJigGroup(m_ctrlUseDIOJigChk.GetCheck());
 }

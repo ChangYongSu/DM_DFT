@@ -158,12 +158,8 @@ void CSoundIn::OnMM_WIM_DATA(WPARAM parm1, LPARAM parm2)
 
 		if (m_bRecording)
 		{
-
-
 			try
 			{
-
-
 				// reuse the buffer:
 				// prepare it again
 				mmReturn = ::waveInPrepareHeader(m_hRecord, pHdr, sizeof(WAVEHDR));

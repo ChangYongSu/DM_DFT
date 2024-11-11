@@ -37,12 +37,16 @@
 
 #include <wtypes.h>
 
+//#ifndef NDEBUG
 
 #ifdef _DEBUG
-
 #define DEBUG_MD5_CODE__
 
 #endif
+//#endif
+
+//#define DEBUG_USB_FTD232_CODE__ //implict to USB DIO
+
 
 #define  MAX_COLUMN_NO	14
 

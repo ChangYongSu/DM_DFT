@@ -29,6 +29,7 @@ extern CAnalogGrabber		AnalogControl;
 IMPLEMENT_DYNCREATE(COptGrabberPage, CPropertyPage)
 
 COptGrabberPage::COptGrabberPage() : CPropertyPage(COptGrabberPage::IDD)
+, m_b2PCBA_WID(FALSE)
 {
 	//{{AFX_DATA_INIT(COptGrabberPage)
 	m_nAnalogFormat = -1;
@@ -63,6 +64,7 @@ void COptGrabberPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Radio(pDX, IDC_GRAB_CHECK_AREA1, m_nGrabCheckArea);
 	DDX_Radio(pDX, IDC_RDO_VIDEO_MODE1, m_nAvSwitchBoxVideoMode);
 	//}}AFX_DATA_MAP
+	DDX_Check(pDX, IDC_CHK_2LABEL_SCANNER, m_b2PCBA_WID);
 }
 
 
@@ -280,6 +282,7 @@ void COptGrabberPage::OnBtnGrabberOptApply()
 
 	}
 	CurrentSet->nRemoteType = m_nRemoteType;
+	CurrentSet->b2PCBA_WID = m_b2PCBA_WID;
 
 	//add psh 091214
 //	CurrentSet->nImageRotation = m_bImage_Rotation;
@@ -422,6 +425,8 @@ BOOL COptGrabberPage::OnInitDialog()
 	//add psh 110226
 	m_nRemoconCustomCode = CurrentSet->nRemoteCustomCode;
 	m_nRemoteType = CurrentSet->nRemoteType;
+	m_b2PCBA_WID = CurrentSet->b2PCBA_WID;
+	
 
 	UpdateData(FALSE);
 

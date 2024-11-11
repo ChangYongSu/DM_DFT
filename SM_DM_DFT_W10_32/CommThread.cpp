@@ -6,6 +6,7 @@
 // 메세지를 받을 윈도우 핸들, 부모 윈도우에서 HWND hCommWnd= this->m_hWnd로
 // 설정해 준다.
 extern HWND g_hCommWnd;
+extern CDATsysView* g_pView;
 
 //extern CCriticalSection critic;
 
@@ -69,6 +70,8 @@ BOOL CCommThread::OpenPort(CString sPortName, DWORD dwBaud, WORD wPortID, BYTE b
 //BOOL CCommThread::OpenPort(CString sPortName, DWORD dwBaud, WORD wPortID)
 //-
 {
+
+	g_hCommWnd = g_pView->m_hWnd;
 	// Local 변수.
 	COMMTIMEOUTS	timeouts;
 	DCB				dcb;
@@ -204,6 +207,7 @@ DWORD CCommThread::WriteComm(BYTE *pBuff, DWORD nToWrite)
 {
 	DWORD	dwWritten, dwError, dwErrorFlags;
 	DWORD   Error;
+	DWORD   ErrorCnt;
 	COMSTAT	comstat;
 
 	if (! WriteFile( m_hComm, pBuff, nToWrite, &dwWritten, &m_osWrite))
@@ -213,6 +217,8 @@ DWORD CCommThread::WriteComm(BYTE *pBuff, DWORD nToWrite)
 
 		if(Error == ERROR_IO_PENDING)
 		{
+
+			ErrorCnt = 0;
 //			while (! GetOverlappedResult( m_hComm, &m_osWrite, &dwWritten, TRUE))
 			while (! GetOverlappedResult( m_hComm, &m_osWrite, &dwWritten, FALSE))
 			{
@@ -222,6 +228,16 @@ DWORD CCommThread::WriteComm(BYTE *pBuff, DWORD nToWrite)
 				{
 					ClearCommError( m_hComm, &dwErrorFlags, &comstat);
 					break;
+				}
+
+				ErrorCnt++;
+				if (ErrorCnt > 100)
+				{
+					break;
+				}
+				else
+				{
+					Sleep(10);
 				}
 			}
 		}
@@ -416,8 +432,8 @@ DWORD	ThreadWatchComm(CCommThread* pComm)
 						PURGE_TXABORT | PURGE_TXCLEAR | PURGE_RXABORT | PURGE_RXCLEAR);
 				}
 			}while(dwRead);
-//			::PostMessage(g_hCommWnd, WM_COMM_READ, pComm->m_wPortID, 0 );//CSerialComDlg로 데이터가 들어왔다는 메시지를 보냄
-			::SendMessage(g_hCommWnd, WM_COMM_READ, pComm->m_wPortID, 0 );//CSerialComDlg로 데이터가 들어왔다는 메시지를 보냄
+//			::PostMessage(g_hCommWnd, WM_COMM_READ, pComm->m_wPortID, 0 );//CSerialComDlg로 데이터가 들어왔다는 메시지를 보냄 보내고 끝
+			::SendMessage(g_hCommWnd, WM_COMM_READ, pComm->m_wPortID, 0 );//CSerialComDlg로 데이터가 들어왔다는 메시지를 보냄  일반 함수들 처럼 기다림
 		}
 		Sleep(0);	// 받은 데이터를 화면에 보여줄 시간을 벌기 위해.
 					// 데이터를 연속으로 받으면 cpu점유율이 100%가 되어 화면에 뿌려주는 작업이 잘 안되고. 결과적으로 

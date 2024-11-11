@@ -22,13 +22,13 @@
 #define GRAB_STOP		0
 #define GRAB_START		1
 
-#define NO_AVSWITCHBOX_TAB_ITEM	27 //24 //20  //19
+#define NO_AVSWITCHBOX_TAB_ITEM	27 //28//24 //20  //19
 
 //+change kwmoon 080923
 // #define NO_GRAB_OPTION_TAB_ITEM 21
 //+change psh 091214
 //#define NO_GRAB_OPTION_TAB_ITEM 23
-#define NO_USB_DIO_TAB_ITEM 11//7
+#define NO_USB_DIO_TAB_ITEM 57 // 49//11//7
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -211,6 +211,45 @@ public:
 		void SetPatternGenGroup(BOOL bEnable);
 		void InitRemoteButtonGroup();
 
+	//	afx_msg void OnBnClickedCheckMioOut8();
+		//afx_msg void OnEnChangeEditMioVolt1();
+		//afx_msg void OnStnClickedStaticVoltMio1();
+		afx_msg void OnBnClickedButtonMioSet();
+		afx_msg void OnBnClickedButtonMioCheck();
+		afx_msg void OnBnClickedButtonMioVoltRead();
+		//afx_msg void OnStnClickedStaticVoltMio2();
+		//afx_msg void OnStnClickedStaticVoltMio3();
+		//afx_msg void OnStnClickedStaticVoltMio4();
+		//afx_msg void OnStnClickedStaticVoltMio5();
+		//afx_msg void OnStnClickedStaticVoltMio6();
+		//afx_msg void OnStnClickedStaticVoltMio7();
+		//afx_msg void OnStnClickedStaticVoltMio8();
+		afx_msg void OnBnClickedCheckMioOut();
+		afx_msg void OnBnClickedCheckMioOut1();
+		afx_msg void OnBnClickedCheckMioOut2();
+		afx_msg void OnBnClickedCheckMioOut3();
+		afx_msg void OnBnClickedCheckMioOut4();
+		afx_msg void OnBnClickedCheckMioOut5();
+		afx_msg void OnBnClickedCheckMioOut6();
+		afx_msg void OnBnClickedCheckMioOut7();
+		afx_msg void OnBnClickedCheckMioOut9();
+		afx_msg void OnBnClickedCheckMioOut10();
+		afx_msg void OnBnClickedCheckMioOut11();
+		afx_msg void OnBnClickedCheckMioOut12();
+		afx_msg void OnBnClickedCheckMioOut13();
+		afx_msg void OnBnClickedCheckMioOut14();
+		afx_msg void OnBnClickedCheckMioOut15();
+		afx_msg void OnBnClickedCheckMioOut16();
+		afx_msg void OnBnClickedCheckMioIn1();
+		afx_msg void OnBnClickedCheckMioIn2();
+		afx_msg void OnBnClickedCheckMioIn3();
+		afx_msg void OnBnClickedCheckMioIn4();
+		afx_msg void OnBnClickedCheckMioIn5();
+		afx_msg void OnBnClickedCheckMioIn6();
+		afx_msg void OnBnClickedCheckMioIn7();
+		afx_msg void OnBnClickedCheckMioIn8();
+		CButton m_cCheckMioOut[16];
+		CButton m_cCheckMioIn[8];
 };
 
 //{{AFX_INSERT_LOCATION}}

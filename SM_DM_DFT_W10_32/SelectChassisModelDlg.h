@@ -86,6 +86,7 @@ public:
 	afx_msg void OnNMClickListChassis(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMCustomdrawListChassis(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMCustomdrawListModel(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnBnClickedOk();
 };
 
 //{{AFX_INSERT_LOCATION}}

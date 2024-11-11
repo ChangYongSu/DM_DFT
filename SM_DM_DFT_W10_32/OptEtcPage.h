@@ -76,6 +76,7 @@ public:
 	UINT	m_nNoUsedColors;
 	BOOL	m_bRelayOnOff;
 	BOOL	m_bFixtureIdCheck;
+	BOOL m_bNoVideoCaptureCheck;
 	//}}AFX_DATA
 
 
@@ -135,6 +136,7 @@ public:
 	afx_msg void OnCbnSelchangeComboMargin2();
 	CComboBox m_cComboSoundLeft;
 	afx_msg void OnCbnSelchangeComboSoundL();
+	
 };
 
 //{{AFX_INSERT_LOCATION}}

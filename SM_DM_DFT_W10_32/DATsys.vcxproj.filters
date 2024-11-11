@@ -399,6 +399,9 @@
     <ClCompile Include="OpenGLControlSub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SMDIO_JIg_Ctrl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DATsys.rc">
@@ -783,6 +786,9 @@
     </ClInclude>
     <ClInclude Include="OpenGLControlSub.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SMDIO_JIg_Ctrl.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

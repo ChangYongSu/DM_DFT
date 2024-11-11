@@ -46,7 +46,9 @@ BOOL _Remocon_Out();
 BOOL _SetRemoconOutRetry();
 BOOL _SetRelay_OnOff();
 BOOL _Freq_Set();
-
+BOOL _SM_DI_Set();
+BOOL _SM_VI_Set();
+BOOL _SM_DO_Set();
 //-
 
 //==================

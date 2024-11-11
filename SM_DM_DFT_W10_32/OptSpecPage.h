@@ -43,6 +43,11 @@ public:
 	int m_EditMode;
 	int m_SelectItem;
 	int m_SelectShell;
+
+
+	int m_WaitCount;
+
+	int mCheckAll;
 // Implementation
 protected:
 	// Generated message map functions
@@ -58,6 +63,7 @@ public:
 
 	void InitVerSpecGrid();
 	void UpdateVerSpecGrid();
+	void ReadNextUpdateVersion();
 
 	CListCtrl m_ctrlAudioVerSpecList;
 	afx_msg void OnNMDblclkListAudioSpecList(NMHDR* pNMHDR, LRESULT* pResult);
@@ -65,6 +71,8 @@ public:
 	afx_msg void OnEnChangeEditOptVersion();
 	CEdit m_cEditOptVersion;
 	afx_msg void OnBnClickedButtonUpdateVersion();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnHdnItemclickListAudioSpecList(NMHDR* pNMHDR, LRESULT* pResult);
 };
 
 //{{AFX_INSERT_LOCATION}}

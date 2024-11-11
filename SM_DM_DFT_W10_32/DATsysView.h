@@ -299,7 +299,7 @@ public :
 	afx_msg LRESULT  RunContinuousLVDSGrab(WPARAM wParam, LPARAM lParam);
 	//+add kwmoon 080527
 	afx_msg LRESULT  OnUploadMesData(WPARAM wParam, LPARAM lParam);
-
+	int CDATsysView::OnUploadMesDataDualFunction(BOOL bPass, CString l_strWipId);
 	//+add kwmoon 080618
 	afx_msg LRESULT  CloseResultDlg(WPARAM wParam, LPARAM lParam);
 
@@ -392,12 +392,16 @@ public :
 	int UploadMasterTable(CString strWipid, BOOL bResult, CString sTime);
 	void LogDataSave(CString sLogFilePath);
 	BOOL GetToolOption();
+	BOOL GetToolOptionDualFunction(CString l_strWipId);
 	BOOL Check_MacAddress(CString sMac_Add);
 	void UpdateToolOptionInfo();
 	void InitVersionGrid();
 	void UpdateVersionInfo();
 	int  ChangeModelCheckOpen(CString lNewModelName);
+	//int  ChangeModelPCBOpen(CString lSNID);
+	int m_KeyF6Press;
 
+	//void CDATsysView::CheckDIInput();
 
 // Operations
 public:
@@ -497,6 +501,7 @@ public:
 	int m_LockStatus[500];
 
 	void SelchangeSoudDevice(int lDeviceID);
+	void CDATsysView::CheckDiStatus();
 private:
     CLedButton			m_LedsMesOn;
 
@@ -565,6 +570,7 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnNMDblclkListMainProcess(NMHDR* pNMHDR, LRESULT* pResult);
 	//afx_msg void OnCbnEditchangeComboSoundL();
+	afx_msg void OnStnClickedStaticWipIdLabel();
 };
 
 #ifndef _DEBUG  // debug version in DATsysView.cpp

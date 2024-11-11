@@ -61,6 +61,7 @@ COptEtcPage::COptEtcPage() : CPropertyPage(COptEtcPage::IDD)
 	m_nNoUsedColors = 5000;
 	m_bRelayOnOff = FALSE;
 	m_bFixtureIdCheck = FALSE;
+	m_bNoVideoCaptureCheck = FALSE;
 	//}}AFX_DATA_INIT
 }
 
@@ -137,6 +138,9 @@ void COptEtcPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST_SPEC_ADJ_LIST, m_ctrlSpecAdjList);
 	DDX_Control(pDX, IDC_COMBO_MARGIN2, m_cComboMargin);
 	DDX_Control(pDX, IDC_COMBO_SOUND_L, m_cComboSoundLeft);
+
+	DDX_Check(pDX, IDC_CHK_NO_VIDEO_CAPTURE, m_bNoVideoCaptureCheck);
+
 }
 
 
@@ -340,6 +344,7 @@ BOOL COptEtcPage::OnInitDialog()
 	m_nNoUserStop	  = g_nUserStop;
 
 	m_bFixtureIdCheck = CurrentSet->bFixtureIdCheck;
+	m_bNoVideoCaptureCheck = CurrentSet->bNoVideoCapture;
 
 	int lSoundCardID = -1;
 
@@ -512,7 +517,7 @@ void COptEtcPage::OnBtnEtcOptApply()
 
 	CurrentSet->bFixtureIdCheck = 	m_bFixtureIdCheck;
 	CurrentSet->nSoundInDeviceID = m_cComboSoundLeft.GetCurSel();
-
+	CurrentSet->bNoVideoCapture = m_bNoVideoCaptureCheck;
 
 
 	//+add kwmoon 071227

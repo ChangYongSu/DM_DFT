@@ -53,10 +53,16 @@
 #define DJ_SOUND_VER	10
 #define WIRELESS_TX_VER	11
 #define WIRELESS_RX_VER	12
-#define BT_VER	13
-#define HDMI_VER	14
-#define CHECKSUM_VER	15
+#define WOOFER_RX_VER	13
+#define REAR_KIT_RX_VER	14
+#define REAR_SPK_L_VER	15
+#define REAR_SPK_R_VER	16
 
+#define BT_VER	17
+#define HDMI_VER	18
+#define CHECKSUM_VER	19
+
+#define  MAX_NUM_VER_COUNT 19
 
 //+add kwmoon 080318
 class CTvCommI2CData
@@ -119,6 +125,9 @@ public :
 	CString			m_sReceive;
 	int				m_nReceiveLength;
 
+	int				m_ReadComplete;
+	int				m_ReadCheckNo;
+
 	BYTE			m_nRevData[256];
 	int				m_nRevSize;
 	int				m_nRevLength;
@@ -180,6 +189,7 @@ public :
 	int				m_nIfTest_Data2;
 
 	int				m_bCheckReadVersion;
+	int				m_bCheckReadVersionCommError;
 public :
 
 	CTVCommCtrl();
@@ -197,7 +207,7 @@ public :
 	UINT IfTest(BYTE sCmd1, int nMaxDelay, BOOL bIfCheck = TRUE);
 
 	BOOL Firmware_VersionCheck(int nIndex, CString sVersion);
-	BOOL Firmware_VersionRead(int nIndex, CString &sVersion);
+	BOOL Firmware_VersionRead(int nIndex);
 	
 	BOOL Send_TVControl_Command(BYTE nCommand,int nWait);
 
@@ -211,7 +221,7 @@ public :
 	BOOL Check_Value(int nData, int nTarget, int nMargin);
 	void Set_MAC_Address(CString sData);
 	BOOL MAC_AddressCheck(BOOL bWifi);
-	BOOL MAC_AddressRead(CString &sMac_add, BOOL bWifi);
+	BOOL MAC_AddressRead(CString &sMac_add, int nMacKind);
 	BOOL Serial_NumberCheck();
 
 	BOOL Send_ResultKey( BOOL bResult) ;

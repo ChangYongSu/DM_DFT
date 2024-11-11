@@ -21,6 +21,7 @@ public:
 
 
 	CString	m_sSetID;
+	CString	m_sSetID2;
 	CString	m_sTransactionID;
 	CString	m_sWorkOrderID;
 	CString	m_sOrganizationID;

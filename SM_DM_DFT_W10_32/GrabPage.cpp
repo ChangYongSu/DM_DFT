@@ -16,6 +16,8 @@
 #include "IrCheckerCtrl.h"
 #include "thermometer.h"
 
+#include "SMDIO_Jig_Ctrl.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -43,16 +45,25 @@ int aAvSwitchBoxCtrlItemNo[] =
 	IDC_CMB_AVSWITCH_VALUE1,IDC_CMB_AVSWITCH_VALUE2,
 	IDC_EDIT_AVSWITCH_RETURN,IDC_BTN_SEND_AVSWITCH_CMD,
 	IDC_EDIT_AVSWITCH_RESULT,
-	IDC_STATIC_AVC_GR,IDC_BTN_AVC_BUF,IDC_BTN_AVC_IR,IDC_EDIT_AVC_OUT,
+	IDC_STATIC_AVC_GR,IDC_BTN_AVC_BUF,IDC_BTN_AVC_IR,IDC_BTN_AVC_IR2,IDC_EDIT_AVC_OUT,
 	IDC_STATIC_TH,IDC_BTN_TH,IDC_EDIT_TH_OUT
 };
 
 int aUsbDioItemNo[] =
 {
-	IDC_STATIC_RELAY, IDC_CHECK_RELAY1, IDC_CHECK_RELAY2,
-	IDC_CHECK_RELAY3, IDC_CHECK_RELAY4, IDC_CHECK_RELAY5, 
-	IDC_CHECK_RELAY6, IDC_CHECK_RELAY7, IDC_CHECK_RELAY8, IDC_CHECK_SELECT_ALL,
-	IDC_BUTTON_SET2
+	IDC_STATIC_RELAY, IDC_CHECK_RELAY1, IDC_CHECK_RELAY2,IDC_CHECK_RELAY3, IDC_CHECK_RELAY4,
+	IDC_CHECK_RELAY5, IDC_CHECK_RELAY6, IDC_CHECK_RELAY7, IDC_CHECK_RELAY8, IDC_CHECK_SELECT_ALL,
+	IDC_BUTTON_SET2, IDC_CHECK_MIO_OUT1,IDC_CHECK_MIO_OUT2,IDC_CHECK_MIO_OUT3,IDC_CHECK_MIO_OUT4,
+	IDC_CHECK_MIO_OUT5,IDC_CHECK_MIO_OUT6,IDC_CHECK_MIO_OUT7,IDC_CHECK_MIO_OUT8,IDC_CHECK_MIO_OUT9,
+	IDC_CHECK_MIO_OUT10,IDC_CHECK_MIO_OUT11,IDC_CHECK_MIO_OUT12,IDC_CHECK_MIO_OUT13,IDC_CHECK_MIO_OUT14,
+	IDC_CHECK_MIO_OUT15,IDC_CHECK_MIO_OUT16,IDC_STATIC_MIO_OUT,IDC_BUTTON_MIO_SET,IDC_STATIC_MIO_IN,
+	IDC_CHECK_MIO_IN1,IDC_CHECK_MIO_IN2,IDC_CHECK_MIO_IN3,IDC_CHECK_MIO_IN4,IDC_CHECK_MIO_IN5,
+	IDC_CHECK_MIO_IN6,IDC_CHECK_MIO_IN7,IDC_CHECK_MIO_IN8,IDC_BUTTON_MIO_CHECK,IDC_STATIC_MIO_VI_GROUP,
+	IDC_STATIC_VOLT_MIO1,IDC_STATIC_VOLT_MIO2,IDC_STATIC_VOLT_MIO3,IDC_STATIC_VOLT_MIO4,IDC_STATIC_VOLT_MIO5,
+	IDC_STATIC_VOLT_MIO6,IDC_STATIC_VOLT_MIO7,	IDC_STATIC_VOLT_MIO8,	IDC_STATIC_VOLT_MIO9,	IDC_STATIC_VOLT_MIO10,
+	IDC_STATIC_VOLT_MIO11,	IDC_STATIC_VOLT_MIO12,	IDC_STATIC_VOLT_MIO13,	IDC_STATIC_VOLT_MIO14,	IDC_STATIC_VOLT_MIO15,
+	IDC_STATIC_VOLT_MIO16,	IDC_BUTTON_MIO_VOLT_READ
+
 };
 
 int aRemoteItemNo[] =
@@ -155,6 +166,32 @@ void CGrabPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_RELAY8, m_bRelay8);
 	DDX_Control(pDX, IDC_EDIT_AVC_OUT, m_ctrlIrDataOut);
 	//}}AFX_DATA_MAP
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT1, m_cCheckMioOut[0]);
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT2, m_cCheckMioOut[1]);
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT3, m_cCheckMioOut[2]);
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT4, m_cCheckMioOut[3]);
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT5, m_cCheckMioOut[4]);
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT6, m_cCheckMioOut[5]);
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT7, m_cCheckMioOut[6]);
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT8, m_cCheckMioOut[7]);
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT9, m_cCheckMioOut[8]);
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT10, m_cCheckMioOut[9]);
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT11, m_cCheckMioOut[10]);
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT12, m_cCheckMioOut[11]);
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT13, m_cCheckMioOut[12]);
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT14, m_cCheckMioOut[13]);
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT15, m_cCheckMioOut[14]);
+	DDX_Control(pDX, IDC_CHECK_MIO_OUT16, m_cCheckMioOut[15]);
+	DDX_Control(pDX, IDC_CHECK_MIO_IN1, m_cCheckMioIn[0]);
+	DDX_Control(pDX, IDC_CHECK_MIO_IN2, m_cCheckMioIn[1]);
+	DDX_Control(pDX, IDC_CHECK_MIO_IN3, m_cCheckMioIn[2]);
+	DDX_Control(pDX, IDC_CHECK_MIO_IN4, m_cCheckMioIn[3]);
+	DDX_Control(pDX, IDC_CHECK_MIO_IN5, m_cCheckMioIn[4]);
+	DDX_Control(pDX, IDC_CHECK_MIO_IN6, m_cCheckMioIn[5]);
+	DDX_Control(pDX, IDC_CHECK_MIO_IN7, m_cCheckMioIn[6]);
+	DDX_Control(pDX, IDC_CHECK_MIO_IN8, m_cCheckMioIn[7]);
+
+
 }
 
 
@@ -207,6 +244,42 @@ BEGIN_MESSAGE_MAP(CGrabPage, CDialog)
 	ON_BN_CLICKED(IDC_BTN_AVC_IR2, OnBtnAvcIr2)
 	//}}AFX_MSG_MAP
 	ON_MESSAGE(UM_UPDATE_GRAB_STATUS, UpdateGrabStatus)
+	//ON_BN_CLICKED(IDC_CHECK_MIO_OUT8, &CGrabPage::OnBnClickedCheckMioOut8)
+	//ON_EN_CHANGE(IDC_EDIT_MIO_VOLT1, &CGrabPage::OnEnChangeEditMioVolt1)
+	//ON_STN_CLICKED(IDC_STATIC_VOLT_MIO1, &CGrabPage::OnStnClickedStaticVoltMio1)
+	ON_BN_CLICKED(IDC_BUTTON_MIO_SET, &CGrabPage::OnBnClickedButtonMioSet)
+	ON_BN_CLICKED(IDC_BUTTON_MIO_CHECK, &CGrabPage::OnBnClickedButtonMioCheck)
+	ON_BN_CLICKED(IDC_BUTTON_MIO_VOLT_READ, &CGrabPage::OnBnClickedButtonMioVoltRead)
+	//ON_STN_CLICKED(IDC_STATIC_VOLT_MIO2, &CGrabPage::OnStnClickedStaticVoltMio2)
+	//ON_STN_CLICKED(IDC_STATIC_VOLT_MIO3, &CGrabPage::OnStnClickedStaticVoltMio3)
+	//ON_STN_CLICKED(IDC_STATIC_VOLT_MIO4, &CGrabPage::OnStnClickedStaticVoltMio4)
+	//ON_STN_CLICKED(IDC_STATIC_VOLT_MIO5, &CGrabPage::OnStnClickedStaticVoltMio5)
+	//ON_STN_CLICKED(IDC_STATIC_VOLT_MIO6, &CGrabPage::OnStnClickedStaticVoltMio6)
+	//ON_STN_CLICKED(IDC_STATIC_VOLT_MIO7, &CGrabPage::OnStnClickedStaticVoltMio7)
+	//ON_STN_CLICKED(IDC_STATIC_VOLT_MIO8, &CGrabPage::OnStnClickedStaticVoltMio8)
+	ON_BN_CLICKED(IDC_CHECK_MIO_OUT1, &CGrabPage::OnBnClickedCheckMioOut)
+	ON_BN_CLICKED(IDC_CHECK_MIO_OUT2, &CGrabPage::OnBnClickedCheckMioOut)
+	ON_BN_CLICKED(IDC_CHECK_MIO_OUT3, &CGrabPage::OnBnClickedCheckMioOut)
+	ON_BN_CLICKED(IDC_CHECK_MIO_OUT4, &CGrabPage::OnBnClickedCheckMioOut)
+	ON_BN_CLICKED(IDC_CHECK_MIO_OUT5, &CGrabPage::OnBnClickedCheckMioOut)
+	ON_BN_CLICKED(IDC_CHECK_MIO_OUT6, &CGrabPage::OnBnClickedCheckMioOut)
+	ON_BN_CLICKED(IDC_CHECK_MIO_OUT7, &CGrabPage::OnBnClickedCheckMioOut)
+	ON_BN_CLICKED(IDC_CHECK_MIO_OUT9, &CGrabPage::OnBnClickedCheckMioOut)
+	ON_BN_CLICKED(IDC_CHECK_MIO_OUT10, &CGrabPage::OnBnClickedCheckMioOut)
+	ON_BN_CLICKED(IDC_CHECK_MIO_OUT11, &CGrabPage::OnBnClickedCheckMioOut)
+	ON_BN_CLICKED(IDC_CHECK_MIO_OUT12, &CGrabPage::OnBnClickedCheckMioOut)
+	ON_BN_CLICKED(IDC_CHECK_MIO_OUT13, &CGrabPage::OnBnClickedCheckMioOut)
+	ON_BN_CLICKED(IDC_CHECK_MIO_OUT14, &CGrabPage::OnBnClickedCheckMioOut)
+	ON_BN_CLICKED(IDC_CHECK_MIO_OUT15, &CGrabPage::OnBnClickedCheckMioOut)
+	ON_BN_CLICKED(IDC_CHECK_MIO_OUT16, &CGrabPage::OnBnClickedCheckMioOut)
+	ON_BN_CLICKED(IDC_CHECK_MIO_IN1, &CGrabPage::OnBnClickedCheckMioIn1)
+	ON_BN_CLICKED(IDC_CHECK_MIO_IN2, &CGrabPage::OnBnClickedCheckMioIn2)
+	ON_BN_CLICKED(IDC_CHECK_MIO_IN3, &CGrabPage::OnBnClickedCheckMioIn3)
+	ON_BN_CLICKED(IDC_CHECK_MIO_IN4, &CGrabPage::OnBnClickedCheckMioIn4)
+	ON_BN_CLICKED(IDC_CHECK_MIO_IN5, &CGrabPage::OnBnClickedCheckMioIn5)
+	ON_BN_CLICKED(IDC_CHECK_MIO_IN6, &CGrabPage::OnBnClickedCheckMioIn6)
+	ON_BN_CLICKED(IDC_CHECK_MIO_IN7, &CGrabPage::OnBnClickedCheckMioIn7)
+	ON_BN_CLICKED(IDC_CHECK_MIO_IN8, &CGrabPage::OnBnClickedCheckMioIn8)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2664,4 +2737,321 @@ void CGrabPage::OnBtnAvcIr2()
 		m_ctrlIrDataOut.SetWindowText(gIrCheckerCtrl.m_strErrMsg);
 	}
 	
+}
+
+
+
+void CGrabPage::OnBnClickedButtonMioSet()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	//double	CSMDIO_Jig_Ctrl::WriteTargetDOUT()//m_WriteDOValue
+	for (int i = 0; i < 16; i++)
+	{
+		gSMDIO_Ctrl.m_WriteDOValue[i]= m_cCheckMioOut[i].GetCheck();
+	}
+
+	if (gSMDIO_Ctrl.WriteTargetDOUT() == 1)
+	{
+		for (int i = 0; i < 16; i++)
+		{
+			m_cCheckMioOut[i].SetCheck(gSMDIO_Ctrl.m_ReceiveDOValue[i]);
+		}
+	}
+	else
+	{
+		MessageBox("Write FAIL!!");
+	}
+}
+
+
+void CGrabPage::OnBnClickedButtonMioCheck()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (gSMDIO_Ctrl.ReadTargetInput() == 1)
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			m_cCheckMioIn[i].SetCheck(gSMDIO_Ctrl.m_ReceiveDIValue[i]);
+		}
+	}
+	else
+	{
+		MessageBox("READ FAIL!!");
+	}
+}
+
+
+void CGrabPage::OnBnClickedButtonMioVoltRead()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CString sTemp;
+	UINT lSID[16] = { IDC_STATIC_VOLT_MIO1,IDC_STATIC_VOLT_MIO2,
+		IDC_STATIC_VOLT_MIO3,IDC_STATIC_VOLT_MIO4,
+		IDC_STATIC_VOLT_MIO5,IDC_STATIC_VOLT_MIO6,
+		IDC_STATIC_VOLT_MIO7,IDC_STATIC_VOLT_MIO8,
+		IDC_STATIC_VOLT_MIO9,IDC_STATIC_VOLT_MIO10,
+		IDC_STATIC_VOLT_MIO11,IDC_STATIC_VOLT_MIO12,
+		IDC_STATIC_VOLT_MIO13,IDC_STATIC_VOLT_MIO14,
+		IDC_STATIC_VOLT_MIO15,IDC_STATIC_VOLT_MIO16 };
+	for (int i = 0; i < 16; i++)
+	{
+		//sTemp.Format("%d:%1.2f", i + 1, gSMDIO_Ctrl.m_ReceiveVIVal[i] / 100);
+		SetDlgItemText(lSID[i], "Wait..");
+	}
+	for (int i = 0; i < 16; i++)
+	{
+		if (gSMDIO_Ctrl.ReadTargetVoltage(i) == 1)
+		{
+
+			sTemp.Format("%d:%1.2f", i + 1, gSMDIO_Ctrl.m_ReceiveVIVal[i] / 100);
+			SetDlgItemText(lSID[i], sTemp);
+		}
+		else
+		{
+			MessageBox("READ FAIL!!");
+			break;
+		}
+	}
+	//if (gSMDIO_Ctrl.ReadTargetVoltage() == 1)
+	//{
+
+	//	for (int i = 0; i < 8; i++)
+	//	{
+	//		sTemp.Format("%d:%1.2f", i+1,gSMDIO_Ctrl.m_ReceiveVIVal[i]/100);
+	//		SetDlgItemText(lSID[i], sTemp);
+	//	}
+	//	
+	//}
+	//else
+	//{
+	//	MessageBox("READ FAIL!!");
+	//}
+
+}
+
+
+
+void CGrabPage::OnBnClickedCheckMioOut()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	//int lPort = 0;
+	//lPort = m_cCheckMioOut[0].GetCheck();
+	OnBnClickedButtonMioSet();
+}
+void CGrabPage::OnBnClickedCheckMioOut1()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	//int lPort = 0;
+	//lPort = m_cCheckMioOut[0].GetCheck();
+	OnBnClickedButtonMioSet();
+}
+
+
+void CGrabPage::OnBnClickedCheckMioOut2()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	OnBnClickedButtonMioSet();
+
+}
+
+
+void CGrabPage::OnBnClickedCheckMioOut3()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	OnBnClickedButtonMioSet();
+}
+
+
+void CGrabPage::OnBnClickedCheckMioOut4()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	OnBnClickedButtonMioSet();
+}
+
+
+void CGrabPage::OnBnClickedCheckMioOut5()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	OnBnClickedButtonMioSet();
+}
+
+
+void CGrabPage::OnBnClickedCheckMioOut6()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CGrabPage::OnBnClickedCheckMioOut7()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CGrabPage::OnBnClickedCheckMioOut9()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CGrabPage::OnBnClickedCheckMioOut10()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CGrabPage::OnBnClickedCheckMioOut11()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CGrabPage::OnBnClickedCheckMioOut12()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CGrabPage::OnBnClickedCheckMioOut13()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CGrabPage::OnBnClickedCheckMioOut14()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CGrabPage::OnBnClickedCheckMioOut15()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CGrabPage::OnBnClickedCheckMioOut16()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CGrabPage::OnBnClickedCheckMioIn1()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int lPort = 0;
+	int lCheck = 0;
+	lCheck = m_cCheckMioIn[lPort].GetCheck();
+	if (gSMDIO_Ctrl.m_ReceiveDIValue[lPort] != lCheck)
+	{
+		OnBnClickedButtonMioCheck();
+	}
+
+
+	//void CGrabPage::OnBnClickedButtonMioCheck()
+	//{
+	//	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	//	if (gSMDIO_Ctrl.ReadTargetInput() == 1)
+	//	{
+	//		for (int i = 0; i < 8; i++)
+	//		{
+	//			m_cCheckMioIn[i].SetCheck(gSMDIO_Ctrl.m_ReceiveDIValue[i]);
+	//		}
+	//	}
+	//	else
+	//	{
+	//		MessageBox("READ FAIL!!");
+	//	}
+	//}
+}
+
+
+void CGrabPage::OnBnClickedCheckMioIn2()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int lPort = 1;
+	int lCheck = 0;
+	lCheck = m_cCheckMioIn[lPort].GetCheck();
+	if (gSMDIO_Ctrl.m_ReceiveDIValue[lPort] != lCheck)
+	{
+		OnBnClickedButtonMioCheck();
+	}
+}
+
+
+void CGrabPage::OnBnClickedCheckMioIn3()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int lPort = 2;
+	int lCheck = 0;
+	lCheck = m_cCheckMioIn[lPort].GetCheck();
+	if (gSMDIO_Ctrl.m_ReceiveDIValue[lPort] != lCheck)
+	{
+		OnBnClickedButtonMioCheck();
+	}
+}
+
+
+void CGrabPage::OnBnClickedCheckMioIn4()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int lPort = 3;
+	int lCheck = 0;
+	lCheck = m_cCheckMioIn[lPort].GetCheck();
+	if (gSMDIO_Ctrl.m_ReceiveDIValue[lPort] != lCheck)
+	{
+		OnBnClickedButtonMioCheck();
+	}
+}
+
+
+void CGrabPage::OnBnClickedCheckMioIn5()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int lPort = 4;
+	int lCheck = 0;
+	lCheck = m_cCheckMioIn[lPort].GetCheck();
+	if (gSMDIO_Ctrl.m_ReceiveDIValue[lPort] != lCheck)
+	{
+		OnBnClickedButtonMioCheck();
+	}
+}
+
+
+void CGrabPage::OnBnClickedCheckMioIn6()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int lPort = 5;
+	int lCheck = 0;
+	lCheck = m_cCheckMioIn[lPort].GetCheck();
+	if (gSMDIO_Ctrl.m_ReceiveDIValue[lPort] != lCheck)
+	{
+		OnBnClickedButtonMioCheck();
+	}
+}
+
+
+void CGrabPage::OnBnClickedCheckMioIn7()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int lPort = 6;
+	int lCheck = 0;
+	lCheck = m_cCheckMioIn[lPort].GetCheck();
+	if (gSMDIO_Ctrl.m_ReceiveDIValue[lPort] != lCheck)
+	{
+		OnBnClickedButtonMioCheck();
+	}
+}
+
+
+void CGrabPage::OnBnClickedCheckMioIn8()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int lPort = 7;
+	int lCheck = 0;
+	lCheck = m_cCheckMioIn[lPort].GetCheck();
+	if (gSMDIO_Ctrl.m_ReceiveDIValue[lPort] != lCheck)
+	{
+		OnBnClickedButtonMioCheck();
+	}
 }

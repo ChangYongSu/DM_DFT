@@ -633,7 +633,11 @@ BOOL CGmes::Paser_S6F5(CString sReceiveData, CString& sSetId)
 
 ////////////////////////////////////////////////////////////////////////////
 		//CurrentSet->ModelList
-		if (CurrentSet->bAutoGMES_ChangeModel == 1)
+		if ((CurrentSet->nProcessType == 0) || (CurrentSet->nProcessType == 1))
+		{
+
+		}
+		else if (CurrentSet->bAutoGMES_ChangeModel == 1)
 		{
 			if (CurrentSet->sModelName.Find(CurrentSet->sModelSuffixName) >= 0)
 			{
@@ -789,6 +793,11 @@ CString CGmes::MakeElem_S6F1(CString sEquipmentID, CString sPcbID, BOOL bResult,
 	else{
 		nItemCount = 5;
 	}
+	if (CurrentSet->bWifiMacAddCheck)
+	{
+		nItemCount++;
+	}
+
 
 	if(!bResult){
 		nItemCount = nItemCount + (FindResult2() * 12);
@@ -849,6 +858,16 @@ CString CGmes::MakeElem_S6F1(CString sEquipmentID, CString sPcbID, BOOL bResult,
 		xmlTemp.AddChildElem("NAME", "MAC_ADDRESS");
 		xmlTemp.AddChildElem("VALUE", CurrentSet->sMacAdd);
 	}
+	if (CurrentSet->bWifiMacAddCheck) {
+		xmlTemp.AddChildElem("NAME", "Wifi_MAC_ADDRESS");
+		xmlTemp.AddChildElem("VALUE", CurrentSet->sWifiMacAdd);
+	}	
+	
+	if (CurrentSet->bBTMacAddCheck) {
+		xmlTemp.AddChildElem("NAME", "BT_MAC_ADDRESS");
+		xmlTemp.AddChildElem("VALUE", CurrentSet->sBTMacAdd);
+	}
+
 
 	if(!bResult){
 		POSITION Position = StepList.GetHeadPosition();

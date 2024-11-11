@@ -604,6 +604,7 @@
     <ClCompile Include="DATsys.cpp" />
     <ClCompile Include="DATsysDoc.cpp" />
     <ClCompile Include="DATsysView.cpp" />
+    <ClCompile Include="SMDIO_JIg_Ctrl.cpp" />
     <ClCompile Include="errorprint.cpp" />
     <ClCompile Include="FFT_SM.cpp" />
     <ClCompile Include="field.cpp" />
@@ -748,6 +749,7 @@
     <ClInclude Include="DATsysDoc.h" />
     <ClInclude Include="DATsysView.h" />
     <ClInclude Include="Defines.h" />
+    <ClInclude Include="SMDIO_JIg_Ctrl.h" />
     <ClInclude Include="Drawgdix.h" />
     <ClInclude Include="DXEXT.H" />
     <ClInclude Include="errorprint.h" />

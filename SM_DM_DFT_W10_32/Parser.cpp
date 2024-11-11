@@ -169,7 +169,11 @@ _MeasureFunction MeasDefined[] =
 	_T("checktemperature"),		_CheckTemperature,		MEAS_DOUBLE,
 	_T("irdata_check"),			_IRDataCheck,		    MEAS_BOOL,
 	_T("mac_add_checkgmes"),	_MAC_Add_CheckGmes,		MEAS_BOOL,
+	_T("wifi_mac_read"),	_Wifi_MAC_Read_Gmes,		MEAS_BOOL,
+	_T("bt_mac_read"),	_BT_MAC_Read_Gmes,		MEAS_BOOL,
 	_T("mic_diff_level_check"),	_Mic_Diff_Level_Check,	MEAS_BOOL,
+	_T("sm_di_check"),	_SM_DI_Check,		MEAS_BOOL,
+	_T("sm_vi_check"),	_SM_VI_Check,		MEAS_BOOL,
 
 
 	NULL, NULL, NULL
@@ -498,6 +502,22 @@ _InternalFunction Predefined[] =
 	{ _T("Audio Sel"), _T("Freq Left"), _T("Freq Right"), _T("") },
 	{ NORMAL_EDIT_TYPE, NORMAL_EDIT_TYPE, NORMAL_EDIT_TYPE, NULL_TYPE },
 
+	_T("sm_di_set"), _SM_DI_Set,
+	{ LP, INTEGER, COMMA, INTEGER, RP, TNULL },
+	{ _T("Port No"), _T("OK Status"), _T("") },
+	{ NORMAL_EDIT_TYPE, NORMAL_EDIT_TYPE, NULL_TYPE },
+	
+	_T("sm_vi_set"), _SM_VI_Set,
+	{ LP, INTEGER, COMMA, REAL, COMMA, REAL, RP, TNULL },
+	{ _T("Port No"), _T("MIN"),_T("MAX"), _T("") },
+	{ NORMAL_EDIT_TYPE, NORMAL_EDIT_TYPE, NORMAL_EDIT_TYPE, NULL_TYPE },
+
+
+	_T("sm_do_set"), _SM_DO_Set,
+	{ LP, INTEGER, COMMA, INTEGER, RP, TNULL },
+	{ _T("Port No"), _T("VALUE"), _T("") },
+	{ NORMAL_EDIT_TYPE, NORMAL_EDIT_TYPE, NULL_TYPE },
+
     NULL, NULL, { TNULL }
 };                      
 
@@ -696,6 +716,12 @@ BOOL GetToken()
     
     while(1)
 	{
+		if (*pWalker < 0)
+		{
+			pToken->value.i = IDS_UNDEFINED_CHAR;
+			return FALSE;
+		}
+
 		if (*pWalker == '\n')
 		{   
 			while(*pWalker == '\n') 
