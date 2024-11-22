@@ -348,6 +348,8 @@ BOOL COptEtcPage::OnInitDialog()
 
 	int lSoundCardID = -1;
 
+	g_pView->m_sm_sound_ctrl.SelectDevice(0);
+
 	if (g_pView->m_sm_sound_ctrl.m_aStrSoundDevice.GetSize() > 0)
 	{
 		for (int i = 0; i < g_pView->m_sm_sound_ctrl.m_aStrSoundDevice.GetSize(); i++)
